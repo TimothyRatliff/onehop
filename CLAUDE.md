@@ -14,6 +14,14 @@ Full spec is in `PROMPT.md`. Agreed design system is in `DESIGN.md`. This file h
 - **The parity test gates everything.** `test/parity.mjs` compares the JS forward pass against PyTorch activations in `golden.json` to 1e-4. If it fails, fix it before touching any figure. Wrong attention maps look completely plausible.
 - **Never demote Tier 1.** Tiers are in `PROMPT.md`. When scope runs long, cut Tier 3 to a sentence, demote Tier 2, and leave Tier 1 alone. Say so before changing any module's tier.
 
+## Git & Commit Guidelines
+- Always use the Conventional Commits specification: `<type>(<optional scope>): <description>`.
+- Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+- Use the imperative mood in the subject line (e.g., "add feature", not "added feature").
+- Keep the first line under 50 characters.
+- Do not add punctuation (periods) at the end of the subject line.
+- For breaking changes, use `!` after type/scope (e.g., `feat(api)!: change response payload`) or include `BREAKING CHANGE:` in the footer.
+
 ## Two kinds of number, never blurred
 
 - **Live** — computed in-browser from the toy date model (2 layers, d_model 48). Label as live. The site says once, plainly, that this is not the paper's model.
@@ -35,7 +43,7 @@ Every Tier 1 and Tier 2 figure:
 
 Ciechanowski, not conference landing page. The reader controls the pace: no scroll-jacking, no autoplay, no forced sequences. Prose is second person, plain, unhurried, no hype.
 
-**Banned:** particle backgrounds, gradient meshes, fade-up-on-scroll, parallax, decorative easing on things that aren't simulating anything, feature card grids, emoji section markers. If it reads as "slick," it's wrong.
+**Banned:** particle backgrounds, gradient meshes, fade-up-on-scroll, parallax, decorative easing on things that aren't simulating anything, feature card grids, emoji section markers.
 
 ## Layout
 
