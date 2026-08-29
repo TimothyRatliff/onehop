@@ -55,3 +55,7 @@ if (model) {
   const { initHeads } = await import("./figures/heads.mjs");
   initHeads(document.getElementById("fig-heads"), model);
 }
+{
+  const { initBottleneck } = await import("./figures/bottleneck.mjs");
+  initBottleneck(document.getElementById("fig-bottleneck"));
+}
