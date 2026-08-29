@@ -42,3 +42,8 @@ if (model) {
   const { initSqrtDk } = await import("./figures/sqrtdk.mjs");
   initSqrtDk(document.getElementById("fig-sqrtdk"));
 }
+{
+  // Module 4 computes PE from the same formula the model uses.
+  const { initPE } = await import("./figures/pe.mjs");
+  initPE(document.getElementById("fig-pe"));
+}

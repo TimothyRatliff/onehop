@@ -66,6 +66,17 @@ test('module 3 renders three panels and the scaling toggle responds', async ({ p
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
 });
 
+test('module 4 renders clocks and heatmaps with live readout', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() =>
+    document.getElementById('loading').textContent.includes('weights loaded'));
+  const fig = page.locator('#fig-pe');
+  await fig.scrollIntoViewIfNeeded();
+  await expect(fig.locator('canvas')).toHaveCount(3);
+  await fig.locator('[data-p="pe"]').hover({ position: { x: 60, y: 100 } });
+  await expect(fig.locator('.sdpa-readout')).toContainText('PE[');
+});
+
 test('figure slots exist for all 15 modules', async ({ page }) => {
   await page.goto('/');
   for (let m = 1; m <= 15; m++) {
