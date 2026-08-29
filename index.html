@@ -403,6 +403,24 @@ figcaption {
   .heads-row { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* module 14 — training recipe */
+.recipe { max-width: 620px; margin: 0 auto; }
+.recipe-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 16px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--ink-08);
+  font: 400 13px/1.5 var(--mono);
+}
+.recipe-row:last-child { border-bottom: none; }
+.recipe-k { color: var(--ink-55); text-align: right; }
+.recipe-v { color: var(--ink); }
+@media (max-width: 640px) {
+  .recipe-row { grid-template-columns: 1fr; gap: 2px; }
+  .recipe-k { text-align: left; }
+}
+
 /* module 11 — cost against quality */
 .cost-picker { justify-content: center; margin-bottom: 10px; }
 .footmark { text-decoration: underline dotted var(--ink-25); cursor: help; }

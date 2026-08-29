@@ -75,3 +75,12 @@ if (model) {
   const { initCost } = await import("./figures/cost.mjs");
   initCost(document.getElementById("fig-cost"));
 }
+{
+  // Tier 3 — static figures, no interaction by design.
+  const { initStack, initFFN, initRecipe, initLearned } =
+    await import("./figures/static.mjs");
+  initStack(document.getElementById("fig-stack"));
+  initFFN(document.getElementById("fig-ffn"));
+  initRecipe(document.getElementById("fig-recipe"));
+  initLearned(document.getElementById("fig-learned"));
+}
