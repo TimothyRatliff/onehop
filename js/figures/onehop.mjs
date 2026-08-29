@@ -352,7 +352,11 @@ export function initOneHop(figEl) {
     el.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       el.setPointerCapture(e.pointerId);
+      el.classList.add("dragging");
     });
+    const release = () => el.classList.remove("dragging");
+    el.addEventListener("pointerup", release);
+    el.addEventListener("pointercancel", release);
     el.addEventListener("pointermove", (e) => {
       if (!el.hasPointerCapture?.(e.pointerId)) return;
       const rect = canvas.getBoundingClientRect();

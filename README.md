@@ -40,3 +40,8 @@ headers: `Cache-Control: public, max-age=31536000, immutable` for
 retrain), and `public, max-age=300` for `index.html` and `js/*`.
 `golden.json` is only needed by the parity test and can be excluded
 from the deployment entirely.
+
+## License
+
+MIT — see `LICENSE`. The bundled fonts (Source Serif 4, IBM Plex Mono) are
+SIL OFL 1.1 and the paper PDF is the authors'; both are carved out there.
