@@ -245,7 +245,12 @@ figcaption {
   border: 2px solid var(--paper);
   box-shadow: 0 0 0 1px var(--azure);
 }
-.fig-handle:hover::after, .fig-handle.dragging::after { inset: 2px; }
+.fig-handle:hover::after { inset: 2px; }
+.fig-handle.dragging { cursor: grabbing; }
+.fig-handle.dragging::after {
+  inset: 2px;
+  box-shadow: 0 0 0 1px var(--azure), 0 0 0 5px color-mix(in srgb, var(--azure) 20%, transparent);
+}
 /* module 2 — scaled dot-product attention */
 .sdpa-top {
   display: flex;
