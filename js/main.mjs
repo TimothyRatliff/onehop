@@ -63,3 +63,7 @@ if (model) {
   const { initCrossover } = await import("./figures/crossover.mjs");
   initCrossover(document.getElementById("fig-crossover"));
 }
+{
+  const { initLrate } = await import("./figures/lrate.mjs");
+  initLrate(document.getElementById("fig-lrate"));
+}
