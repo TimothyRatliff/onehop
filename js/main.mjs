@@ -33,3 +33,7 @@ try {
   const { initOneHop } = await import("./figures/onehop.mjs");
   initOneHop(document.getElementById("fig-onehop"));
 }
+if (model) {
+  const { initSDPA } = await import("./figures/sdpa.mjs");
+  initSDPA(document.getElementById("fig-sdpa"), model);
+}

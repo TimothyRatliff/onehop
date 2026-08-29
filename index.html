@@ -229,6 +229,88 @@ figcaption {
   box-shadow: 0 0 0 1px var(--azure);
 }
 .fig-handle:hover::after, .fig-handle.dragging::after { inset: 2px; }
+/* module 2 — scaled dot-product attention */
+.sdpa-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.sdpa-in {
+  font: 400 13px/1 var(--mono);
+  color: var(--ink-55);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.sdpa-in input {
+  font: 400 15px/1.2 var(--mono);
+  color: var(--ink);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--ink-25);
+  padding: 6px 2px;
+  width: min(340px, 60vw);
+}
+.sdpa-in input:focus { outline: none; border-bottom-color: var(--azure); }
+.head-picker { display: flex; gap: 6px; }
+.head-btn { padding: 6px 9px; color: var(--ink-55); }
+.head-btn.on { border-color: var(--azure); color: var(--azure); }
+.sdpa-tokens { margin-top: 4px; }
+.tokwrap { position: relative; }
+.sdpa-arcs { display: block; width: 100%; overflow: visible; }
+.sdpa-tokrow { display: flex; flex-wrap: nowrap; gap: 2px; }
+.tok {
+  font: 400 15px/1 var(--mono);
+  color: var(--ink);
+  background: var(--ink-08);
+  border: 1px solid transparent;
+  border-radius: 3px;
+  min-width: 14px;
+  padding: 7px 0;
+  cursor: pointer;
+  flex: 0 1 26px;
+}
+.tok.sel { background: var(--azure); color: var(--paper); }
+.sdpa-stages { margin-top: 22px; display: grid; gap: 14px; }
+.sdpa-stage { display: grid; grid-template-columns: 118px 1fr; align-items: center; gap: 12px; }
+.stage-label { font: 400 12px/1.4 var(--mono); color: var(--ink-55); text-align: right; }
+.strip { display: flex; gap: 2px; align-items: flex-end; min-height: 20px; }
+.strip .cell {
+  flex: 0 1 26px;
+  min-width: 14px;
+  height: 20px;
+  border-radius: 2px;
+  cursor: crosshair;
+}
+.strip .cell.sel { outline: 1px solid var(--ink-55); outline-offset: 1px; }
+.strip .cell.kbd-cursor { outline: 2px solid var(--azure); outline-offset: 1px; }
+.strip .bar-cell {
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  background: none;
+  gap: 3px;
+}
+.strip .bar-cell i { display: block; width: 70%; min-height: 1px; background: var(--azure); border-radius: 1px 1px 0 0; }
+.strip .bar-cell em { font: 400 10px/1 var(--mono); font-style: normal; color: var(--ink-55); }
+.sdpa-readout {
+  margin-top: 16px;
+  font: 400 13px/1.5 var(--mono);
+  color: var(--ink);
+  min-height: 1.5em;
+}
+@media (max-width: 640px) {
+  .sdpa-stage { grid-template-columns: 1fr; gap: 4px; }
+  .stage-label { text-align: left; }
+  .tok { min-width: 10px; padding: 6px 0; font-size: 12px; }
+  .strip .cell { min-width: 10px; }
+}
+
 .chip {
   font: 500 13px/1 var(--mono);
   color: var(--ink);

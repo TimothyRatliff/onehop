@@ -34,6 +34,24 @@ test('module 1 renders and responds', async ({ page }) => {
   await expect(fig.locator('[data-h="src"]')).toBeFocused();
 });
 
+test('module 2 computes live attention from typed input', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() =>
+    document.getElementById('loading').textContent.includes('weights loaded'));
+  const fig = page.locator('#fig-sdpa');
+  await fig.scrollIntoViewIfNeeded();
+  await expect(fig.locator('.tok')).toHaveCount(23); // "the third of march 2012"
+  // hover a weight cell -> readout prints a fully-qualified trace name
+  await fig.locator('.strip').nth(2).locator('.cell').first().hover();
+  await expect(fig.locator('.sdpa-readout')).toContainText('enc0.attn.weights');
+  // switching heads updates the aria state
+  await fig.locator('.head-btn').nth(1).click();
+  await expect(fig.locator('.head-btn').nth(1)).toHaveAttribute('aria-checked', 'true');
+  // typing a new date recomputes the token row
+  await fig.locator('input').fill('03/03/12');
+  await expect(fig.locator('.tok')).toHaveCount(8);
+});
+
 test('figure slots exist for all 15 modules', async ({ page }) => {
   await page.goto('/');
   for (let m = 1; m <= 15; m++) {
