@@ -79,6 +79,7 @@ p { margin-top: 0; margin-bottom: 1.1em; }
 a { color: var(--ink); text-decoration-color: var(--ink-25); text-underline-offset: 3px; }
 a:hover { text-decoration-color: var(--azure); }
 em { font-style: italic; }
+strong { font-weight: 600; }
 .mono { font-family: var(--mono); font-size: .85em; }
 sub { font-size: .7em; }
 
@@ -596,7 +597,8 @@ footer a:hover { color: var(--ink); }
   <p>In 2017, <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">a paper from
   Google</a> proposed doing away with recurrence in
   sequence models entirely. Its argument can be put in one sentence: <em>a
-  self-attention layer connects any two positions in one hop.</em> A
+  self-attention layer connects any two positions in <a href="https://www.onehop.world/"><strong>one
+  hop</strong></a>.</em> A
   recurrent network needs <span class="mono">n</span> steps to carry a signal
   from the first word of a sentence to the last. A convolutional one needs a
   stack of layers, log of <span class="mono">n</span> deep. Attention needs
