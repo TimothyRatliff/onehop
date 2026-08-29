@@ -28,4 +28,15 @@ figure work.
 python train.py               retrain (rarely needed; weights are committed)
 node test/parity.mjs          verify JS matches PyTorch
 python -m http.server 8000    serve locally
+npx playwright test           e2e smoke tests
 ```
+
+## Deploying
+
+Static files only — sync the repo (minus `node_modules`, `test`,
+`.venv`, `train.py`, the PDF) to S3 behind CloudFront. Suggested
+headers: `Cache-Control: public, max-age=31536000, immutable` for
+`model.bin`, `fonts/*`, and `golden.json` (they change only with a
+retrain), and `public, max-age=300` for `index.html` and `js/*`.
+`golden.json` is only needed by the parity test and can be excluded
+from the deployment entirely.
