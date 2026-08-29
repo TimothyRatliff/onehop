@@ -14,6 +14,26 @@ test('weights load and the HUD shows the model card', async ({ page }) => {
   await expect(page.locator('#hud .hud-card')).toContainText('toy model');
 });
 
+test('module 1 renders and responds', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() =>
+    document.getElementById('loading').textContent.includes('weights loaded'));
+  const fig = page.locator('#fig-onehop');
+  await fig.scrollIntoViewIfNeeded();
+  await expect(fig.locator('canvas')).toBeVisible();
+  await expect(fig.locator('.badge')).toContainText('simulation');
+  // scrubbing pauses playback and pins the clock
+  await page.evaluate(() => {
+    const inp = document.querySelectorAll('#fig-onehop .ctl-slider input')[2];
+    inp.value = '100';
+    inp.dispatchEvent(new Event('input'));
+  });
+  await expect(fig.locator('.ctl-btn')).toHaveText('play');
+  // endpoint handles are keyboard-focusable
+  await fig.locator('[data-h="src"]').focus();
+  await expect(fig.locator('[data-h="src"]')).toBeFocused();
+});
+
 test('figure slots exist for all 15 modules', async ({ page }) => {
   await page.goto('/');
   for (let m = 1; m <= 15; m++) {

@@ -190,6 +190,45 @@ figcaption {
   border: 2px solid var(--paper);
   box-shadow: 0 0 0 1px var(--azure);
 }
+.fig-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px 26px;
+  margin-top: 14px;
+}
+.ctl-btn {
+  font: 500 13px/1 var(--mono);
+  color: var(--ink);
+  background: none;
+  border: 1px solid var(--ink-25);
+  border-radius: 3px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+.ctl-btn:hover { border-color: var(--azure); }
+.fig-handle {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: grab;
+  touch-action: none;
+}
+.fig-handle::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--azure);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--azure);
+}
+.fig-handle:hover::after, .fig-handle.dragging::after { inset: 2px; }
 .chip {
   font: 500 13px/1 var(--mono);
   color: var(--ink);

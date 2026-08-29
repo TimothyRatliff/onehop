@@ -28,7 +28,8 @@ try {
 }
 
 // ---- figures come online here, one per module session ----
-// if (model) {
-//   const { initOneHop } = await import("./figures/onehop.mjs");
-//   initOneHop(document.getElementById("fig-onehop"), model);
-// }
+{
+  // Module 1 is a pure simulation; it does not need the weights.
+  const { initOneHop } = await import("./figures/onehop.mjs");
+  initOneHop(document.getElementById("fig-onehop"));
+}
