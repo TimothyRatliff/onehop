@@ -59,3 +59,7 @@ if (model) {
   const { initBottleneck } = await import("./figures/bottleneck.mjs");
   initBottleneck(document.getElementById("fig-bottleneck"));
 }
+{
+  const { initCrossover } = await import("./figures/crossover.mjs");
+  initCrossover(document.getElementById("fig-crossover"));
+}
