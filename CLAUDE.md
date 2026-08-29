@@ -1,6 +1,6 @@
 # onehop
 
-Interactive explainer for *Attention Is All You Need* (Vaswani et al., 2017). Deploys as a static site to S3 + CloudFront.
+Interactive explainer for *Attention Is All You Need* (Vaswani et al., 2017). Deploys as a static site to Cloudflare Workers (`wrangler.jsonc`, `.assetsignore`); pushing to `main` triggers the build.
 
 **The thesis:** a self-attention layer connects any two positions in one hop. Recurrence needs n, convolution needs log_k(n). Everything else in the paper follows from that. The site is an argument, not a summary.
 
@@ -56,15 +56,20 @@ index.html          the site
 js/model.mjs        hand-written forward pass, returns full trace
 js/figures/         one module per file
 test/parity.mjs     must pass before any figure work
+test/e2e/           playwright smoke tests
+.assetsignore       what is kept out of the deployed bundle
 ```
 
 ## Commands
 
 ```
-python train.py               retrain (rarely needed; weights are committed)
-node test/parity.mjs          verify JS matches PyTorch
-python -m http.server 8000    serve locally
+npm run serve                 serve locally on :8000
+npm run test:parity           verify JS matches PyTorch
+npm run test:e2e              playwright smoke tests
+python3 train.py              retrain (needs torch in .venv; weights are committed)
 ```
+
+There is no bare `python` on this machine — use `python3`.
 
 ## Working agreement
 

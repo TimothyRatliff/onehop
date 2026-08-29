@@ -1,6 +1,7 @@
 # onehop
 
 Interactive explainer for *Attention Is All You Need* (Vaswani et al., 2017).
+Live at <https://www.onehop.world>.
 
 ## The model
 
@@ -14,6 +15,14 @@ as fp16 in `model.bin` (214 KB). Fixed seed (1337), reproducible.
 3,000 dates (uniform over all nine input formats), measured *after* fp16
 quantization — the accuracy of exactly the weights the browser loads.
 
+## Two kinds of number
+
+Figures that compute from the toy weights in your browser are labelled
+**live**. BLEU scores, FLOPs, parameter counts, ablations and the paper's
+own figures are labelled **reported** — those are the paper's model, not
+this one. The site never blurs the two, and says plainly that the toy is
+not the paper's model.
+
 ## Parity
 
 `golden.json` stores PyTorch's intermediate activations at every
@@ -25,21 +34,15 @@ figure work.
 ## Commands
 
 ```
-python train.py               retrain (rarely needed; weights are committed)
-node test/parity.mjs          verify JS matches PyTorch
-python -m http.server 8000    serve locally
-npx playwright test           e2e smoke tests
+npm run serve                 serve locally on :8000
+npm run test:parity           verify JS matches PyTorch
+npm run test:e2e              e2e smoke tests
+python3 train.py              retrain (rarely needed; weights are committed)
 ```
 
-## Deploying
-
-Static files only — sync the repo (minus `node_modules`, `test`,
-`.venv`, `train.py`, the PDF) to S3 behind CloudFront. Suggested
-headers: `Cache-Control: public, max-age=31536000, immutable` for
-`model.bin`, `fonts/*`, and `golden.json` (they change only with a
-retrain), and `public, max-age=300` for `index.html` and `js/*`.
-`golden.json` is only needed by the parity test and can be excluded
-from the deployment entirely.
+`train.py` needs PyTorch, which is not otherwise a dependency of this
+repo: `python3 -m venv .venv && .venv/bin/pip install torch`, then
+`.venv/bin/python train.py`.
 
 ## License
 
