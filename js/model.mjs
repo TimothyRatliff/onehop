@@ -150,7 +150,7 @@ export function sinusoidalPE(maxLen, d) {
  * Returns every intermediate: q/k/v/scores/weights/heads are per-head
  * ([h][T][...]), concat and out are [Tq][d].
  */
-function mha(model, prefix, xq, xkv, mask) {
+function mha(model, prefix, xq, xkv, mask, headMask) {
   const { n_heads: H, d_k: dk } = model.config;
   const p = model.params;
   const qf = linear(xq, p[`${prefix}.wq.w`], p[`${prefix}.wq.b`]);
@@ -185,6 +185,16 @@ function mha(model, prefix, xq, xkv, mask) {
     q.push(qh); k.push(kh); v.push(vh);
     scores.push(sh); weights.push(wh); heads.push(oh);
   }
+  // Ablation hook (module 6): zero a head's output before concat. Not part
+  // of the paper's forward pass — figures use it to show what a head
+  // contributes by removing it.
+  if (headMask) {
+    for (let h = 0; h < H; h++) {
+      if (headMask[h] === false || headMask[h] === 0) {
+        heads[h] = heads[h].map((row) => row.map(() => 0));
+      }
+    }
+  }
   // S3.2.2: Concat(head_1..head_h) W^O
   const concat = xq.map((_, t) => heads.flatMap((oh) => oh[t]));
   const out = linear(concat, p[`${prefix}.wo.w`], p[`${prefix}.wo.b`]);
@@ -218,14 +228,20 @@ function embed(model, ids) {
   return { tok_emb, x0 };
 }
 
-/** Encoder stack. Returns the full trace; trace.out is the encoder output. */
-export function encodeSrc(model, srcIds) {
+/**
+ * Encoder stack. Returns the full trace; trace.out is the encoder output.
+ * opts.headMasks: {"enc0.attn": [1,1,0,1], ...} zeroes chosen heads
+ * (module 6's ablation). Defaults leave the forward pass exactly as
+ * verified by test/parity.mjs.
+ */
+export function encodeSrc(model, srcIds, opts = {}) {
   const cfg = model.config;
   const tr = { ...embed(model, srcIds), layers: [] };
   let x = tr.x0;
   for (let l = 0; l < cfg.n_enc; l++) {
     const lt = {};
-    const attn = mha(model, `enc${l}.attn`, x, x, null);
+    const attn = mha(model, `enc${l}.attn`, x, x, null,
+      opts.headMasks?.[`enc${l}.attn`]);
     lt.self_attn = attn;
     lt.res1 = addRows(x, attn.out); // post-LN residual, S3.1
     lt.ln1 = layerNorm(lt.res1, model.params[`enc${l}.ln1.g`],
@@ -241,20 +257,29 @@ export function encodeSrc(model, srcIds) {
   return tr;
 }
 
-/** Decoder stack over the full target prefix (no KV cache — the model is
- * tiny and recomputing keeps every step's full trace observable). */
-export function decoderPass(model, tgtIds, encOut) {
+/**
+ * Decoder stack over the full target prefix (no KV cache — the model is
+ * tiny and recomputing keeps every step's full trace observable).
+ * opts.causal: false disables the causal mask (module 5's cheat mode —
+ * never used in real decoding). opts.headMasks as in encodeSrc, keyed
+ * "dec0.self" / "dec0.cross".
+ */
+export function decoderPass(model, tgtIds, encOut, opts = {}) {
   const cfg = model.config;
   const tr = { ...embed(model, tgtIds), layers: [] };
-  const causal = causalMask(tgtIds.length, cfg.neg_inf);
+  const causal = opts.causal === false
+    ? null
+    : causalMask(tgtIds.length, cfg.neg_inf);
   let x = tr.x0;
   for (let l = 0; l < cfg.n_dec; l++) {
     const lt = {};
-    lt.self_attn = mha(model, `dec${l}.self`, x, x, causal);
+    lt.self_attn = mha(model, `dec${l}.self`, x, x, causal,
+      opts.headMasks?.[`dec${l}.self`]);
     lt.res1 = addRows(x, lt.self_attn.out);
     lt.ln1 = layerNorm(lt.res1, model.params[`dec${l}.ln1.g`],
       model.params[`dec${l}.ln1.b`], cfg.ln_eps);
-    lt.cross_attn = mha(model, `dec${l}.cross`, lt.ln1, encOut, null);
+    lt.cross_attn = mha(model, `dec${l}.cross`, lt.ln1, encOut, null,
+      opts.headMasks?.[`dec${l}.cross`]);
     lt.res2 = addRows(lt.ln1, lt.cross_attn.out);
     lt.ln2 = layerNorm(lt.res2, model.params[`dec${l}.ln2.g`],
       model.params[`dec${l}.ln2.b`], cfg.ln_eps);
@@ -285,9 +310,9 @@ export function projectLogits(model, decOut) {
  * Full teacher-forced pass: encoder over srcIds, decoder over tgtInIds
  * (BOS-prefixed target). Trace shape mirrors golden.json cases.
  */
-export function forward(model, srcIds, tgtInIds) {
-  const encoder = encodeSrc(model, srcIds);
-  const decoder = decoderPass(model, tgtInIds, encoder.out);
+export function forward(model, srcIds, tgtInIds, opts = {}) {
+  const encoder = encodeSrc(model, srcIds, opts);
+  const decoder = decoderPass(model, tgtInIds, encoder.out, opts);
   const logits = projectLogits(model, decoder.out);
   return { encoder, decoder, logits };
 }
@@ -297,8 +322,8 @@ export function forward(model, srcIds, tgtInIds) {
  * the decoder trace, last-position logits, and the chosen token.
  * Figures step decoding one token at a time through this.
  */
-export function decodeStep(model, encTrace, prefixIds) {
-  const decoder = decoderPass(model, prefixIds, encTrace.out);
+export function decodeStep(model, encTrace, prefixIds, opts = {}) {
+  const decoder = decoderPass(model, prefixIds, encTrace.out, opts);
   const logits = projectLogits(model, [decoder.out[decoder.out.length - 1]])[0];
   let chosen = 0;
   for (let i = 1; i < logits.length; i++) if (logits[i] > logits[chosen]) chosen = i;
@@ -306,14 +331,14 @@ export function decodeStep(model, encTrace, prefixIds) {
 }
 
 /** Greedy decode. Returns the output text plus every step's trace. */
-export function greedyDecode(model, srcIds, maxLen) {
+export function greedyDecode(model, srcIds, maxLen, opts = {}) {
   const cfg = model.config;
   const limit = maxLen ?? cfg.tgt_len + 1;
-  const encoder = encodeSrc(model, srcIds);
+  const encoder = encodeSrc(model, srcIds, opts);
   const prefix = [cfg.bos_id];
   const steps = [];
   for (let i = 0; i < limit; i++) {
-    const step = decodeStep(model, encoder, [...prefix]);
+    const step = decodeStep(model, encoder, [...prefix], opts);
     steps.push(step);
     if (step.chosen === cfg.eos_id) break;
     prefix.push(step.chosen);
