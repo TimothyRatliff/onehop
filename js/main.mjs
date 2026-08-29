@@ -37,3 +37,8 @@ if (model) {
   const { initSDPA } = await import("./figures/sdpa.mjs");
   initSDPA(document.getElementById("fig-sdpa"), model);
 }
+{
+  // Module 3 demonstrates footnote 4's statistics on synthetic vectors.
+  const { initSqrtDk } = await import("./figures/sqrtdk.mjs");
+  initSqrtDk(document.getElementById("fig-sqrtdk"));
+}

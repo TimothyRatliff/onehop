@@ -52,6 +52,20 @@ test('module 2 computes live attention from typed input', async ({ page }) => {
   await expect(fig.locator('.tok')).toHaveCount(8);
 });
 
+test('module 3 renders three panels and the scaling toggle responds', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() =>
+    document.getElementById('loading').textContent.includes('weights loaded'));
+  const fig = page.locator('#fig-sqrtdk');
+  await fig.scrollIntoViewIfNeeded();
+  await expect(fig.locator('canvas')).toHaveCount(3);
+  const toggle = fig.locator('.ctl-btn').first();
+  await expect(toggle).toHaveText('scaling off');
+  await toggle.click();
+  await expect(toggle).toHaveText(/scaling on/);
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('figure slots exist for all 15 modules', async ({ page }) => {
   await page.goto('/');
   for (let m = 1; m <= 15; m++) {
