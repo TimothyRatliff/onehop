@@ -8,6 +8,7 @@
 <style>
 /* ------------------------------------------------ tokens (DESIGN.md) */
 :root {
+  color-scheme: light;
   --paper: #FAF8F3;
   --ink: #221E19;
   --azure: #0072B2;
@@ -98,6 +99,13 @@ h1 {
   margin-top: 0;
   margin-bottom: 6px;
 }
+.byline {
+  font-size: 15px;
+  color: var(--ink-55);
+  margin: 0;
+}
+.byline a { color: var(--ink-55); }
+.byline a:hover { color: var(--ink); }
 #loading {
   font: 400 13px/1.5 var(--mono);
   color: var(--ink-55);
@@ -576,6 +584,7 @@ footer a:hover { color: var(--ink); }
 <header>
   <h1>onehop</h1>
   <p class="subtitle">an interactive reading of “Attention Is All You Need”</p>
+  <p class="byline">by <a href="https://www.timothyratliff.com" target="_blank" rel="noopener">Tim Ratliff</a></p>
   <p id="loading">loading weights…</p>
 </header>
 
