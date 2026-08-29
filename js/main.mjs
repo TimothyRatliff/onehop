@@ -71,3 +71,7 @@ if (model) {
   const { initAblations } = await import("./figures/ablations.mjs");
   initAblations(document.getElementById("fig-ablations"));
 }
+{
+  const { initCost } = await import("./figures/cost.mjs");
+  initCost(document.getElementById("fig-cost"));
+}
