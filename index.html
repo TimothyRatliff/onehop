@@ -783,9 +783,14 @@ footer a:hover { color: var(--ink); }
 
 <section id="sec-results">
   <h2><span class="sec">§ 12</span>Cost against quality</h2>
-  <p>The results, plotted as quality against training compute. The
-  transformer sits up and to the left of everything it replaced: better
-  BLEU for one to two orders of magnitude less compute.</p>
+  <p>The results, plotted as quality against training compute. On
+  English-to-German the transformer sits up and to the left of the whole
+  field: the base model beats every earlier single model and every
+  ensemble, at roughly 3× less compute than the cheapest of them and
+  55× less than the dearest. English-to-French is the less tidy panel —
+  there the base model trails four earlier systems, and it takes the big
+  model to pass them all, still at less than a quarter of the previous
+  state of the art's training cost.</p>
   <figure class="stage" data-module="11" id="fig-cost">
     <div class="fig-slot">module 11 — cost against quality (table 2)</div>
   </figure>
@@ -806,7 +811,7 @@ footer a:hover { color: var(--ink); }
   <h2><span class="sec">§ 14</span>What the heads learned</h2>
   <p>The paper ends by looking inside. Individual heads in the trained
   model turn out to do legible work: one follows a long-distance
-  dependency across eleven words; two others resolve the pronoun
+  dependency seven positions ahead; two others resolve the pronoun
   “its” onto both “Law” and “application.” The architecture also
   generalized on the first try: a four-layer transformer got within
   reach of the best constituency parsers of the time.</p>

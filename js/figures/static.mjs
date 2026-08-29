@@ -163,7 +163,7 @@ export function initLearned(figEl) {
   }
   const mk = sent1.indexOf("making");
   const inner = `
-    ${T(24, 24, "figure 3 · a head completing “making … more difficult” across eleven words", { c: "ink", w: 500 })}
+    ${T(24, 24, "figure 3 · a head completing “making … more difficult” seven positions later", { c: "ink", w: 500 })}
     ${row(sent1, 92, [[mk, sent1.indexOf("more"), 0.95], [mk, sent1.indexOf("difficult"), 0.85],
       [mk, sent1.indexOf("laws"), 0.25], [mk, sent1.indexOf("2009"), 0.2]], "azure")}
     ${T(24, 140, "figure 4 · two heads resolving “its” — one onto “Law”, one onto “application”", { c: "ink", w: 500 })}

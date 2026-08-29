@@ -1,8 +1,9 @@
 // Module 11 — Cost against quality (paper Table 2).
 //
 // BLEU against training FLOPs on a log axis, EN-DE / EN-FR toggle.
-// Every point is transcribed from Table 2. The transformer sits up and
-// to the left; the argument makes itself, so nothing here narrates it.
+// Every point is transcribed from Table 2. On EN-DE the base model is up
+// and to the left of the whole field; EN-FR is the less tidy panel. The
+// argument makes itself, so nothing here narrates it.
 
 import { registerFigure } from "../runtime.mjs";
 import { hud } from "../hud.mjs";
