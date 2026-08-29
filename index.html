@@ -373,6 +373,36 @@ figcaption {
 .mp-bad { background: var(--vermilion); color: var(--paper); }
 .mask-predrow.dim .mp { background: none; color: var(--ink-55); }
 
+/* module 6 — multi-head */
+.heads-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+.head-card { min-width: 0; }
+.head-onoff {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 12px/1 var(--mono);
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+.head-onoff input { accent-color: currentColor; width: 14px; height: 14px; }
+.head-card canvas { display: block; }
+.heads-out { margin-top: 14px; display: grid; gap: 4px; }
+.heads-outrow { display: flex; align-items: center; gap: 8px; justify-content: center; }
+.heads-outrow .mg-lab { min-width: 76px; justify-content: flex-end; }
+.mp-seq { display: inline-flex; gap: 2px; }
+.mp-seq .mp { min-width: 20px; padding: 3px 0; }
+.heads-outrow.dim .mp { background: none; color: var(--ink-55); }
+.heads-verdict { font: 400 12px/1 var(--mono); color: var(--ink-55); }
+.heads-verdict.bad { color: var(--vermilion); }
+@media (max-width: 700px) {
+  .heads-row { grid-template-columns: repeat(2, 1fr); }
+}
+
 /* module 4 — positional encoding */
 .pe-maps {
   display: flex;

@@ -51,3 +51,7 @@ if (model) {
   const { initMask } = await import("./figures/mask.mjs");
   initMask(document.getElementById("fig-mask"), model);
 }
+if (model) {
+  const { initHeads } = await import("./figures/heads.mjs");
+  initHeads(document.getElementById("fig-heads"), model);
+}

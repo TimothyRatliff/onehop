@@ -92,6 +92,20 @@ test('module 5 mask toggle floods the future and breaks predictions', async ({ p
   await expect(fig.locator('.mp-bad').first()).toBeVisible();
 });
 
+test('module 6 head ablation changes the real prediction', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() =>
+    document.getElementById('loading').textContent.includes('weights loaded'));
+  const fig = page.locator('#fig-heads');
+  await fig.scrollIntoViewIfNeeded();
+  await expect(fig.locator('.head-card canvas')).toHaveCount(4);
+  await expect(fig.locator('.heads-verdict')).toHaveText('all heads on');
+  // silence head 3 of dec L2 cross: september is read as month 02
+  await fig.locator('.head-card').nth(2).locator('input[type=checkbox]').click();
+  await expect(fig.locator('.heads-verdict')).toHaveText('degraded');
+  await expect(fig.locator('.mp-bad').first()).toBeVisible();
+});
+
 test('figure slots exist for all 15 modules', async ({ page }) => {
   await page.goto('/');
   for (let m = 1; m <= 15; m++) {
