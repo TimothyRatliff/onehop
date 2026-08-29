@@ -6,3 +6,4 @@ playwright/.cache/
 .venv/
 __pycache__/
 .omc
+.wrangler/

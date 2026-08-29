@@ -1,0 +1,10 @@
+{
+  "name": "onehop",
+  "compatibility_date": "2025-11-01",
+  "assets": {
+    "directory": "."
+  },
+  "observability": {
+    "enabled": true
+  }
+}

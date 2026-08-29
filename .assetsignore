@@ -1,0 +1,19 @@
+# Everything in the repo that is not part of the served site.
+.git/
+.github/
+.venv/
+__pycache__/
+node_modules/
+test/
+test-results/
+playwright-report/
+blob-report/
+playwright/
+*.py
+*.md
+golden.json
+attention_is_all_you_need.pdf
+package.json
+package-lock.json
+playwright.config.js
+wrangler.jsonc
