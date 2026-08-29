@@ -326,6 +326,53 @@ figcaption {
 .sq-panel { flex: 0 1 auto; min-width: 150px; }
 .ctl-btn.on-azure { border-color: var(--azure); color: var(--azure); }
 
+/* module 5 — the mask */
+.mask-ctls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.ctl-btn.off-verm { border-color: var(--vermilion); color: var(--vermilion); }
+.mask-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(18px, 44px));
+  gap: 2px;
+  justify-content: center;
+  margin-top: 18px;
+}
+.mg-lab {
+  font: 400 12px/1 var(--mono);
+  color: var(--ink-55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 18px;
+}
+.mg-cell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  cursor: crosshair;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 400 11px/1 var(--mono);
+}
+.mg-masked { background: var(--ink); color: var(--paper); }
+.mg-one { color: var(--paper); }
+.mask-preds { margin-top: 16px; display: grid; gap: 4px; }
+.mask-predrow {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 12), minmax(18px, 44px));
+  gap: 2px;
+  justify-content: center;
+}
+.mask-predrow .mg-lab { font-size: 11px; justify-content: flex-end; padding-right: 6px; }
+.mp {
+  font: 500 13px/1.6 var(--mono);
+  text-align: center;
+  color: var(--ink);
+  background: var(--ink-08);
+  border-radius: 2px;
+}
+.mp-bad { background: var(--vermilion); color: var(--paper); }
+.mask-predrow.dim .mp { background: none; color: var(--ink-55); }
+
 /* module 4 — positional encoding */
 .pe-maps {
   display: flex;
@@ -549,8 +596,10 @@ figcaption {
   <figure class="stage" data-module="5" id="fig-mask">
     <div class="fig-slot">module 5 — the mask</div>
   </figure>
-  <p>Toggle the mask off and see what the decoder does when it's allowed
-  to cheat. The failure is the explanation.</p>
+  <p>Toggle the mask off and watch the prediction row underneath. This
+  decoder was trained with the mask in place, so showing it the future
+  doesn't help it cheat — it breaks it. The failure is the
+  explanation.</p>
 </section>
 
 <section id="sec-ffn">

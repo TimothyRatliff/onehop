@@ -77,6 +77,21 @@ test('module 4 renders clocks and heatmaps with live readout', async ({ page }) 
   await expect(fig.locator('.sdpa-readout')).toContainText('PE[');
 });
 
+test('module 5 mask toggle floods the future and breaks predictions', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() =>
+    document.getElementById('loading').textContent.includes('weights loaded'));
+  const fig = page.locator('#fig-mask');
+  await fig.scrollIntoViewIfNeeded();
+  // masked: upper triangle is -inf cells and predictions are correct
+  await expect(fig.locator('.mg-masked').first()).toHaveText('−∞');
+  await expect(fig.locator('.mp-bad')).toHaveCount(0);
+  // unmasked: no -inf cells remain, predictions collapse
+  await fig.locator('.mask-toggle').click();
+  await expect(fig.locator('.mg-masked')).toHaveCount(0);
+  await expect(fig.locator('.mp-bad').first()).toBeVisible();
+});
+
 test('figure slots exist for all 15 modules', async ({ page }) => {
   await page.goto('/');
   for (let m = 1; m <= 15; m++) {

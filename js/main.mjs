@@ -47,3 +47,7 @@ if (model) {
   const { initPE } = await import("./figures/pe.mjs");
   initPE(document.getElementById("fig-pe"));
 }
+if (model) {
+  const { initMask } = await import("./figures/mask.mjs");
+  initMask(document.getElementById("fig-mask"), model);
+}
