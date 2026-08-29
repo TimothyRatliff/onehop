@@ -1,0 +1,15 @@
+{
+  "name": "onehop",
+  "private": true,
+  "description": "Interactive explainer for Attention Is All You Need",
+  "scripts": {
+    "serve": "python3 -m http.server 8000",
+    "test:parity": "node test/parity.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}
