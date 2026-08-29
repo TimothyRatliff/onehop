@@ -19,7 +19,7 @@
 
 import { encodeText, idsToText, encodeSrc, decoderPass, projectLogits, greedyDecode } from "../model.mjs";
 import { hud } from "../hud.mjs";
-import { registerFigure } from "../runtime.mjs";
+import { registerFigure, probeVerb } from "../runtime.mjs";
 
 export function initMask(figEl, model) {
   const cfg = model.config;
@@ -37,7 +37,7 @@ export function initMask(figEl, model) {
     </div>
     <div class="mask-grid" role="img"></div>
     <div class="mask-preds"></div>
-    <div class="sdpa-readout" aria-live="polite">hover any cell — masked cells hold the −∞ sentinel and softmax to exactly 0</div>
+    <div class="sdpa-readout" aria-live="polite">${probeVerb()} any cell — masked cells hold the −∞ sentinel and softmax to exactly 0</div>
     <figcaption>Decoder self-attention over the model's own output
     (layer 1). Rows attend to columns; the upper-right triangle is the
     future. This model was trained under the mask, so switching the mask

@@ -15,7 +15,7 @@
 
 import { encodeText, encodeSrc } from "../model.mjs";
 import { hud } from "../hud.mjs";
-import { registerFigure } from "../runtime.mjs";
+import { registerFigure, probeVerb } from "../runtime.mjs";
 
 const NHEADS = 4;
 
@@ -38,7 +38,7 @@ export function initSDPA(figEl, model) {
       </div>
     </div>
     <div class="sdpa-stages"></div>
-    <div class="sdpa-readout" aria-live="polite">hover any cell to read its exact value</div>
+    <div class="sdpa-readout" aria-live="polite">${probeVerb()} any cell to read its exact value</div>
     <figcaption>One head of the first encoder layer, unrolled for the
     character you select. The arcs and the bars are the same numbers —
     the softmax row of equation 1.</figcaption>`;

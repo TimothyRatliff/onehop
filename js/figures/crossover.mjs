@@ -7,7 +7,7 @@
 // sentence lengths actually live. The reader drags d and watches the
 // crossover walk.
 
-import { registerFigure, makeSlider } from "../runtime.mjs";
+import { registerFigure, makeSlider, probe, probeVerb } from "../runtime.mjs";
 import { hud } from "../hud.mjs";
 
 const css = getComputedStyle(document.documentElement);
@@ -26,7 +26,7 @@ export function initCrossover(figEl) {
     <div class="badge">reported · Vaswani et al. 2017, Table 1 complexities</div>
     <div class="fig-body"><canvas aria-label="per-layer work of self-attention and recurrence versus sequence length"></canvas></div>
     <div class="fig-controls"></div>
-    <div class="sdpa-readout" aria-live="polite">hover the plot to compare the two costs at any n</div>
+    <div class="sdpa-readout" aria-live="polite">${probeVerb()} the plot to compare the two costs at any n</div>
     <figcaption>Per-layer work on log–log axes. The curves cross exactly
     at n = d: below it the quadratic term is the cheaper one. Sentences
     are short; that is the whole bet.</figcaption>`;
@@ -135,9 +135,8 @@ export function initCrossover(figEl) {
     draw();
   }
 
-  canvas.addEventListener("pointermove", (e) => {
-    const r = canvas.getBoundingClientRect();
-    const n = Math.round(nAt(e.clientX - r.left));
+  probe(canvas, (x) => {
+    const n = Math.round(nAt(x));
     if (n < NMIN || n > NMAX) { st.hoverN = null; draw(); return; }
     st.hoverN = n;
     const att = n * n * st.d, rec = n * st.d * st.d;
@@ -147,8 +146,7 @@ export function initCrossover(figEl) {
       ` · attention is ${ratio < 1 ? (1 / ratio).toFixed(1) + "× cheaper" : ratio.toFixed(1) + "× dearer"}`;
     hud.value(`n²d / nd² at n=${n}, d=${st.d}`, +ratio.toFixed(4));
     draw();
-  });
-  canvas.addEventListener("pointerleave", () => { st.hoverN = null; draw(); });
+  }, { onLeave: () => { st.hoverN = null; draw(); } });
   // keyboard probe along n
   canvas.tabIndex = 0;
   canvas.setAttribute("role", "slider");

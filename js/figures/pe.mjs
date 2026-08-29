@@ -17,7 +17,7 @@
 
 import { sinusoidalPE } from "../model.mjs";
 import { hud } from "../hud.mjs";
-import { registerFigure, makeSlider } from "../runtime.mjs";
+import { registerFigure, makeSlider, probe, probeVerb } from "../runtime.mjs";
 
 const D = 48, MAXPOS = 64, NCLK = D / 2;
 
@@ -41,7 +41,7 @@ export function initPE(figEl) {
       <div class="pe-map"><canvas data-p="pe" aria-label="positional encoding heatmap"></canvas></div>
       <div class="pe-map"><canvas data-p="sim" aria-label="PE similarity matrix"></canvas></div>
     </div>
-    <div class="sdpa-readout" aria-live="polite">hover either heatmap to read exact values</div>
+    <div class="sdpa-readout" aria-live="polite">${probeVerb()} either heatmap to read exact values</div>
     <figcaption>Top: the 24 dimension-pair clocks at your position
     (dark hand) and at position + offset (blue hand). The blue advance is
     the same rotation for a given clock wherever you start — that is the
@@ -180,12 +180,9 @@ export function initPE(figEl) {
     drawSim();
   }
 
-  // ---------------------------------------------------------- hover
+  // ---------------------------------------------------------- probe
   function mapHover(c, fn) {
-    c.addEventListener("pointermove", (e) => {
-      const r = c.getBoundingClientRect();
-      fn((e.clientX - r.left) / r.width, (e.clientY - r.top - 18) / (r.height - 34));
-    });
+    probe(c, (x, y, r) => fn(x / r.width, (y - 18) / (r.height - 34)));
   }
   mapHover(cv.pe, (fx, fy) => {
     const i = Math.floor(fx * D), p = Math.floor(fy * MAXPOS);

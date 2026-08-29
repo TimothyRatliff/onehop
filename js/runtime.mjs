@@ -190,3 +190,33 @@ export function keyboardNudge(el, { label, onNudge, step = 1 }) {
     onNudge(d[0] * k, d[1] * k);
   });
 }
+
+/**
+ * Canvas readout probe. Figures that report a value under the cursor bind
+ * this instead of a bare pointermove listener: a tap reports one value, a
+ * sideways drag scrubs, and `touch-action: pan-y` leaves vertical swipes to
+ * the page so a full-width figure never traps the scroll. fn receives (x, y)
+ * relative to the canvas, plus the rect and the event.
+ *
+ * onLeave fires for mice only — on touch, pointerleave arrives the instant
+ * the finger lifts and would wipe the value the tap just produced.
+ */
+export function probe(canvas, fn, { onLeave } = {}) {
+  canvas.style.touchAction = "pan-y";
+  const at = (e) => {
+    const r = canvas.getBoundingClientRect();
+    fn(e.clientX - r.left, e.clientY - r.top, r, e);
+  };
+  canvas.addEventListener("pointermove", at);
+  canvas.addEventListener("pointerdown", at);
+  if (onLeave) {
+    canvas.addEventListener("pointerleave", (e) => {
+      if (e.pointerType === "mouse") onLeave();
+    });
+  }
+}
+
+/** The verb for a readout's placeholder copy: touch devices have no hover. */
+export function probeVerb() {
+  return matchMedia("(pointer: coarse)").matches ? "tap" : "hover";
+}

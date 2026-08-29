@@ -14,7 +14,7 @@
 
 import { encodeText, greedyDecode } from "../model.mjs";
 import { hud } from "../hud.mjs";
-import { registerFigure } from "../runtime.mjs";
+import { registerFigure, probeVerb } from "../runtime.mjs";
 
 const HUES = [
   ["azure", "0,114,178"],
@@ -45,7 +45,7 @@ export function initHeads(figEl, model) {
     <div class="heads-row"></div>
     <svg class="heads-concat" aria-label="concat and output projection"></svg>
     <div class="heads-out"></div>
-    <div class="sdpa-readout" aria-live="polite">hover any map to read exact weights · uncheck a head to silence it</div>
+    <div class="sdpa-readout" aria-live="polite">${probeVerb()} any map to read exact weights · uncheck a head to silence it</div>
     <figcaption>Four heads of one block, each looking somewhere different
     on your input. Silencing a head does not blind it — its map is
     unchanged — it discards its output at the concat. Some heads are
@@ -153,8 +153,12 @@ export function initHeads(figEl, model) {
       ctx.font = "500 11px 'IBM Plex Mono', monospace";
       ctx.fillText("output zeroed", 20, ht - 6);
     }
-    // hover -> exact weight
-    canvas.onpointermove = (e) => {
+    // probe -> exact weight. Assigned as properties rather than listeners:
+    // this render function re-runs on every redraw, and addEventListener
+    // would stack a fresh handler each time. pointerdown carries touch,
+    // where there is no hover to move.
+    canvas.style.touchAction = "pan-y";
+    const readAt = (e) => {
       const rect = canvas.getBoundingClientRect();
       const c = Math.floor((e.clientX - rect.left - 18) / cell);
       const r = Math.floor((e.clientY - rect.top - 14) / cell);
@@ -167,6 +171,8 @@ export function initHeads(figEl, model) {
       hud.value(`${st.block}.weights[${h}][${r}][${c}]`, wv);
       hud.active(0);
     };
+    canvas.onpointermove = readAt;
+    canvas.onpointerdown = readAt;
   }
 
   function drawConcat() {

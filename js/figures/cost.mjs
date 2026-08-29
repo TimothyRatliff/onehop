@@ -5,7 +5,7 @@
 // and to the left of the whole field; EN-FR is the less tidy panel. The
 // argument makes itself, so nothing here narrates it.
 
-import { registerFigure } from "../runtime.mjs";
+import { registerFigure, probe, probeVerb } from "../runtime.mjs";
 import { hud } from "../hud.mjs";
 
 const css = getComputedStyle(document.documentElement);
@@ -52,7 +52,7 @@ export function initCost(figEl) {
     <div class="badge">reported · Vaswani et al. 2017, Table 2 · newstest2014</div>
     <div class="head-picker cost-picker" role="radiogroup" aria-label="language pair"></div>
     <div class="fig-body"><canvas aria-label="BLEU against training FLOPs, log axis"></canvas></div>
-    <div class="sdpa-readout" aria-live="polite">hover a point for its exact numbers</div>
+    <div class="sdpa-readout" aria-live="polite">${probeVerb()} a point for its exact numbers</div>
     <figcaption>Quality against training compute, one point per model.
     Points without a reported cost are omitted from the plot.
     <span class="footmark" tabindex="0">A footnote for the close
@@ -145,9 +145,7 @@ export function initCost(figEl) {
     draw();
   }
 
-  canvas.addEventListener("pointermove", (e) => {
-    const r = canvas.getBoundingClientRect();
-    const mx = e.clientX - r.left, my = e.clientY - r.top;
+  probe(canvas, (mx, my) => {
     let best = null, bd = 20 * 20;
     for (const [name, bleu, flops] of pts()) {
       const d = (xOf(flops) - mx) ** 2 + (yOf(bleu) - my) ** 2;
@@ -159,8 +157,7 @@ export function initCost(figEl) {
       hud.value(`Table2[${best[0]}].${st.pair}`, best[1]);
     }
     draw();
-  });
-  canvas.addEventListener("pointerleave", () => { st.hover = null; draw(); });
+  }, { onLeave: () => { st.hover = null; draw(); } });
 
   registerFigure(figEl, {
     start() { hud.set([{ label: "Table 2", dims: [9, 4] }], 0); },

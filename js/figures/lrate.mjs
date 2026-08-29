@@ -6,7 +6,7 @@
 // ramp up, then inverse-square-root decay. The warmup handle moves the
 // kink; the paper's warmup_steps = 4000 with d_model = 512 stays marked.
 
-import { registerFigure, makeSlider } from "../runtime.mjs";
+import { registerFigure, makeSlider, probe, probeVerb } from "../runtime.mjs";
 import { hud } from "../hud.mjs";
 
 const css = getComputedStyle(document.documentElement);
@@ -26,7 +26,7 @@ export function initLrate(figEl) {
     <div class="badge">reported · Vaswani et al. 2017, §5.3 with d_model = 512</div>
     <div class="fig-body"><canvas aria-label="learning rate schedule with warmup handle"></canvas></div>
     <div class="fig-controls"></div>
-    <div class="sdpa-readout" aria-live="polite">hover the curve to read the exact rate at any step</div>
+    <div class="sdpa-readout" aria-live="polite">${probeVerb()} the curve to read the exact rate at any step</div>
     <figcaption>The two arms of the min — the linear ramp and the
     inverse-square-root decay — meet at the kink, exactly at
     warmup_steps. The paper trains with warmup_steps = 4000.</figcaption>`;
@@ -137,16 +137,14 @@ export function initLrate(figEl) {
     draw();
   }
 
-  canvas.addEventListener("pointermove", (e) => {
-    const r = canvas.getBoundingClientRect();
-    const s = Math.round(Math.max(1, Math.min(SMAX, sAt(e.clientX - r.left))));
+  probe(canvas, (x) => {
+    const s = Math.round(Math.max(1, Math.min(SMAX, sAt(x))));
     st.hover = s;
     const v = lrate(s, st.warmup);
     readout.textContent = `step ${s}: lrate = 512^−0.5 · min(${s}^−0.5, ${s}·${st.warmup}^−1.5) = ${v.toExponential(3)}`;
     hud.value(`lrate(step=${s})`, +v.toExponential(3));
     draw();
-  });
-  canvas.addEventListener("pointerleave", () => { st.hover = null; draw(); });
+  }, { onLeave: () => { st.hover = null; draw(); } });
 
   figEl.querySelector(".fig-controls").append(
     makeSlider({
