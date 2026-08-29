@@ -41,11 +41,15 @@ export function initPE(figEl) {
       <div class="pe-map"><canvas data-p="pe" aria-label="positional encoding heatmap"></canvas></div>
       <div class="pe-map"><canvas data-p="sim" aria-label="PE similarity matrix"></canvas></div>
     </div>
-    <div class="sdpa-readout" aria-live="polite">${probeVerb()} either heatmap to read exact values</div>
+    <div class="sdpa-readout" aria-live="polite">${probeVerb()} a clock or either heatmap to read exact values</div>
     <figcaption>Top: the 24 dimension-pair clocks at your position
     (dark hand) and at position + offset (blue hand). The blue advance is
     the same rotation for a given clock wherever you start — that is the
-    linear-map claim, demonstrated. Bottom left: the same encoding as a
+    linear-map claim, demonstrated. The clocks at the slow end look frozen
+    because they nearly are: across all 64 positions the last one turns half
+    a degree, which is what spacing the rates geometrically buys you —
+    ${probeVerb()} any clock for its period and the angle it actually moves.
+    Bottom left: the same encoding as a
     matrix, one row per position. Bottom right: PE·PEᵀ, normalized —
     nearby positions stay similar along the band.</figcaption>`;
 
@@ -59,7 +63,8 @@ export function initPE(figEl) {
   const SIM = PE.map((a) =>
     PE.map((b) => a.reduce((s, v, i) => s + v * b[i], 0) / (D / 2)));
 
-  const st = { pos: 8, k: 4 };
+  const st = { pos: 8, k: 4, clock: null };
+  const clockAt = [];              // hit boxes, refilled by drawClocks
   const omega = (i) => 1 / 10000 ** ((2 * i) / D);
 
   function prep(c, w, h) {
@@ -86,11 +91,19 @@ export function initPE(figEl) {
     for (let i = 0; i < NCLK; i++) {
       const cx = (i % perRow) * cell + cell / 2 + (W - perRow * cell) / 2;
       const cy = Math.floor(i / perRow) * cell + cell / 2 + 4;
+      clockAt[i] = { cx, cy, r };
       ctx.strokeStyle = C.ink25;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, 7);
       ctx.stroke();
+      if (st.clock === i) {
+        ctx.strokeStyle = C.azure;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + 4, 0, 7);
+        ctx.stroke();
+      }
       const a0 = st.pos * omega(i);
       const a1 = (st.pos + st.k) * omega(i);
       // the advance arc — the fixed rotation k*omega_i
@@ -178,15 +191,57 @@ export function initPE(figEl) {
     drawClocks();
     drawPEMap();
     drawSim();
+    if (st.clock !== null) showClock();
+  }
+
+  // A hand at the slow end turns a fraction of a degree across the whole
+  // 64-position window — real, and far too little to see. The readout is
+  // where that becomes a measurement instead of a dead dial.
+  const asTurn = (d) => (d >= 360 ? `${(d / 360).toFixed(2)} turns` : `${d.toFixed(2)}°`);
+
+  function showClock() {
+    const i = st.clock;
+    const w = omega(i);
+    const period = (2 * Math.PI) / w;
+    const deg = (x) => (x * w * 180) / Math.PI;
+    readout.textContent =
+      `clock ${i} · dims ${2 * i},${2 * i + 1} · period ` +
+      `${period < 100 ? period.toFixed(1) : Math.round(period).toLocaleString("en-US")} pos · ` +
+      `k=${st.k.toFixed(2)} turns it ${asTurn(deg(st.k))} · ` +
+      `${asTurn(deg(MAXPOS - 1))} across all ${MAXPOS} positions`;
+    hud.value(`clock ${i} advance°`, +deg(st.k).toFixed(3));
+    hud.active(0);
   }
 
   // ---------------------------------------------------------- probe
   function mapHover(c, fn) {
     probe(c, (x, y, r) => fn(x / r.width, (y - 18) / (r.height - 34)));
   }
+  probe(cv.clocks, (x, y) => {
+    let hit = null, best = Infinity;
+    for (let i = 0; i < clockAt.length; i++) {
+      const c = clockAt[i];
+      const d = Math.hypot(x - c.cx, y - c.cy);
+      if (d <= c.r * 1.4 && d < best) { best = d; hit = i; }
+    }
+    if (hit === null || hit === st.clock) return;
+    st.clock = hit;
+    showClock();
+    drawClocks();
+  });
+
+  // reading a heatmap drops the clock selection, so the ring never lies
+  // about which number is on screen
+  const dropClock = () => {
+    if (st.clock === null) return;
+    st.clock = null;
+    drawClocks();
+  };
+
   mapHover(cv.pe, (fx, fy) => {
     const i = Math.floor(fx * D), p = Math.floor(fy * MAXPOS);
     if (i < 0 || i >= D || p < 0 || p >= MAXPOS) return;
+    dropClock();
     readout.textContent = `PE[${p}][${i}] = ${PE[p][i].toFixed(6)}`;
     hud.value(`PE[${p}][${i}]`, PE[p][i]);
     hud.active(0);
@@ -194,6 +249,7 @@ export function initPE(figEl) {
   mapHover(cv.sim, (fx, fy) => {
     const b = Math.floor(fx * MAXPOS), a = Math.floor(fy * MAXPOS);
     if (a < 0 || a >= MAXPOS || b < 0 || b >= MAXPOS) return;
+    dropClock();
     readout.textContent = `PE·PEᵀ[${a}][${b}] / 24 = ${SIM[a][b].toFixed(6)}`;
     hud.value(`(PE·PEᵀ)[${a}][${b}]/24`, SIM[a][b]);
     hud.active(1);
