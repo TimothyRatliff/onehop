@@ -67,3 +67,7 @@ if (model) {
   const { initLrate } = await import("./figures/lrate.mjs");
   initLrate(document.getElementById("fig-lrate"));
 }
+{
+  const { initAblations } = await import("./figures/ablations.mjs");
+  initAblations(document.getElementById("fig-ablations"));
+}

@@ -403,6 +403,57 @@ figcaption {
   .heads-row { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* module 10 — ablations */
+.abl-picker { justify-content: center; margin-bottom: 6px; flex-wrap: wrap; }
+.abl-note {
+  font: 400 12px/1.5 var(--mono);
+  color: var(--ink-55);
+  text-align: center;
+  margin: 4px 0 14px;
+}
+.abl-bars {
+  display: flex;
+  gap: 26px;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 260px;
+  position: relative;
+}
+.abl-bars::after {
+  content: "";
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: calc(38px + var(--baseline, 100px));
+  border-top: 1px dashed var(--ink-25);
+}
+.abl-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+.abl-col i {
+  display: block;
+  width: 40px;
+  background: var(--azure);
+  opacity: .55;
+  border-radius: 2px 2px 0 0;
+}
+.abl-col.abl-base i { opacity: 1; }
+.abl-val { font: 500 13px/1 var(--mono); color: var(--ink); }
+.abl-lab { font: 400 12px/1 var(--mono); color: var(--ink); margin-top: 2px; }
+.abl-ppl { font: 400 11px/1 var(--mono); color: var(--ink-55); }
+@media (max-width: 640px) {
+  .abl-bars { gap: 12px; }
+  .abl-col i { width: 26px; }
+}
+
 /* module 4 — positional encoding */
 .pe-maps {
   display: flex;
