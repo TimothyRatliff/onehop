@@ -599,18 +599,18 @@ footer a:hover { color: var(--ink); }
 
 <section id="intro">
   <p>In 2017, <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">a paper from
-  Google</a> proposed doing away with recurrence in
-  sequence models entirely. Its argument can be put in one sentence: <em>a
+  Google</a> proposed dropping recurrence from
+  sequence models entirely. The argument fits in a sentence: <em>a
   self-attention layer connects any two positions in <a href="https://www.onehop.world/"><strong>one
   hop</strong></a>.</em> A
   recurrent network needs <span class="mono">n</span> steps to carry a signal
   from the first word of a sentence to the last. A convolutional one needs a
   stack of layers, log of <span class="mono">n</span> deep. Attention needs
-  one. The parallel training, the speed, the long-range dependencies the
-  models actually learned — all of it falls out of that single fact.</p>
-  <p>This page walks through the paper the way you'd walk through a proof.
-  Most figures here are running a real transformer — a small one, in your
-  browser, right now. You can grab almost everything you see.</p>
+  one. The parallel training, the speed, the long-range dependencies these
+  models actually learned: all of it follows from that.</p>
+  <p>This page works through the paper in order. Most of the figures below
+  are running a real transformer, a small one, in your browser. You can grab
+  almost everything you see.</p>
 </section>
 
 <section id="sec-onehop">
@@ -626,8 +626,8 @@ footer a:hover { color: var(--ink); }
     <div class="fig-slot">module 1 — one hop</div>
   </figure>
   <p>Set <span class="mono">n</span> to a long sentence and watch the step
-  counters. This is the whole thesis; the rest of the page is the price
-  paid for that one hop, and the evidence that the price is low.</p>
+  counters. That is the whole thesis. The rest of the page is the price
+  paid for the one hop, and the evidence that the price is low.</p>
 </section>
 
 <section id="sec-bottleneck">
@@ -635,8 +635,9 @@ footer a:hover { color: var(--ink); }
   <p>Why not just keep recurrence? Because the hidden state at position
   <span class="mono">t</span> depends on the one at
   <span class="mono">t−1</span>. That dependency is a chain through the
-  whole sequence: nothing at the end can be computed before everything
-  before it. Within one training example there is no parallelism to
+  whole sequence, and nothing near the end can be computed until
+  everything ahead of it is done. Within one training example there is no
+  parallelism to
   find, and at long sequence lengths, memory limits how many examples
   you can batch together to compensate.</p>
   <figure class="stage" data-module="7" id="fig-bottleneck">
@@ -646,18 +647,19 @@ footer a:hover { color: var(--ink); }
 
 <section id="sec-sdpa">
   <h2><span class="sec">§ 3</span>Scaled dot-product attention</h2>
-  <p>So what is the one-hop mechanism, concretely? From here on, the
-  figures are live. A small transformer — the paper's architecture with
-  two layers instead of six and 48 dimensions instead of 512 — is running
-  in your browser, trained to read a date in any messy format and write it
+  <p>What does the one-hop mechanism actually do? From here on, the
+  figures are live. A small transformer is running in your browser: the
+  paper's architecture with two layers instead of six and 48 dimensions
+  instead of 512, trained to read a date in any messy format and write it
   back as <span class="mono">yyyy-mm-dd</span>. It is not the paper's
-  model, and this page will always tell you which numbers come from the
-  toy and which come from the paper. But every tensor you see from the toy
-  is real: computed from real weights, on your machine, as you watch.</p>
+  model, and this page will always say which numbers come from the toy
+  and which come from the paper. But nothing the toy shows you is faked.
+  Every tensor is computed from the actual weights, on your machine, as
+  you watch.</p>
   <p>Type a date. Pick a character. That character's query vector is dotted
   against every position's key; the scores go through a softmax; the
   resulting weights blend every position's value vector into one output.
-  Each stage is there to grab.</p>
+  Every stage is exposed below.</p>
   <figure class="stage" data-module="2" id="fig-sdpa">
     <div class="fig-slot">module 2 — scaled dot-product attention</div>
   </figure>
@@ -669,42 +671,42 @@ footer a:hover { color: var(--ink); }
   dimension before the softmax, and the paper spends a footnote on why. If
   the components of a query and a key are independent with mean 0 and
   variance 1, their dot product has variance
-  <span class="mono">d_k</span> — it grows with the dimension. Push large
+  <span class="mono">d_k</span>, which grows with the dimension. Push large
   scores through a softmax and it saturates: one weight goes to 1, the
   rest to 0, and the gradients through the softmax go with them.</p>
   <figure class="stage" data-module="3" id="fig-sqrtdk">
     <div class="fig-slot">module 3 — why √d_k</div>
   </figure>
   <p>Raise <span class="mono">d_k</span> and watch the distribution widen
-  and the gradient gauge fall. Then turn on the scaling and watch it snap
-  back. That's the footnote, felt.</p>
+  and the gradient gauge fall. Then turn the scaling on and watch it snap
+  back.</p>
 </section>
 
 <section id="sec-heads">
   <h2><span class="sec">§ 5</span>Multi-head</h2>
-  <p>One attention pattern per layer is a bottleneck of its own — averaging
-  inhibits it. So the model runs several small attentions in parallel:
+  <p>One attention pattern per layer is a bottleneck of its own, since
+  averaging inhibits it. So the model runs several small attentions in parallel:
   each head projects the input down, attends in its own subspace, and the
   results are concatenated and mixed back together. The four heads below
   are the toy model's real heads, and they have learned different jobs.</p>
   <figure class="stage" data-module="6" id="fig-heads">
     <div class="fig-slot">module 6 — multi-head attention</div>
   </figure>
-  <p>Turn a head off. The prediction changes — or breaks. With a real
-  model, ablation is not a metaphor.</p>
+  <p>Turn a head off and watch the prediction shift, or fall apart
+  entirely. The weights are real, so the damage is too.</p>
 </section>
 
 <section id="sec-pe">
   <h2><span class="sec">§ 6</span>Positional encoding</h2>
   <p>Attention is a set operation: shuffle the inputs and the outputs
   shuffle with them. Order has to be put in explicitly, so the model adds
-  a position signal to each embedding — sinusoids whose wavelengths run
+  a position signal to each embedding: sinusoids whose wavelengths run
   from 2π up to 10000·2π, one pair of dimensions per frequency. Think of
   a bank of clock hands spinning at geometrically spaced rates.</p>
   <figure class="stage" data-module="4" id="fig-pe">
     <div class="fig-slot">module 4 — positional encoding</div>
   </figure>
-  <p>Drag the offset. Every hand advances by a fixed rotation — which is
+  <p>Drag the offset. Every hand advances by a fixed rotation. That is
   the paper's reason for choosing sinusoids: the encoding of position
   <span class="mono">pos+k</span> is a linear function of the encoding of
   <span class="mono">pos</span>, so relative offsets are easy for the
@@ -718,7 +720,7 @@ footer a:hover { color: var(--ink); }
   decoder layers with a third sub-layer attending over the encoder's
   output. Every sub-layer is wrapped in a residual connection and layer
   normalization. The output embedding is offset by one position, for a
-  reason the next section makes vivid.</p>
+  reason the next section gets to.</p>
   <figure class="stage" data-module="12" id="fig-stack">
     <div class="fig-slot">module 12 — the stack (figure 1)</div>
   </figure>
@@ -735,8 +737,7 @@ footer a:hover { color: var(--ink); }
   </figure>
   <p>Toggle the mask off and watch the prediction row underneath. This
   decoder was trained with the mask in place, so showing it the future
-  doesn't help it cheat — it breaks it. The failure is the
-  explanation.</p>
+  doesn't help it cheat. It breaks it.</p>
 </section>
 
 <section id="sec-ffn">
@@ -744,7 +745,7 @@ footer a:hover { color: var(--ink); }
   <p>Between attentions, each position is pushed through the same small
   two-layer network: expand to 2048 dimensions, rectify, project back.
   The same weights at every position within a layer, different weights
-  across layers — equivalently, two convolutions with kernel size 1.</p>
+  across layers. Equivalently: two convolutions with kernel size 1.</p>
   <figure class="stage" data-module="13" id="fig-ffn">
     <div class="fig-slot">module 13 — position-wise FFN</div>
   </figure>
@@ -752,13 +753,13 @@ footer a:hover { color: var(--ink); }
 
 <section id="sec-crossover">
   <h2><span class="sec">§ 10</span>What the hop costs</h2>
-  <p>Nothing is free. Self-attention's one hop costs
+  <p>Self-attention's one hop costs
   <span class="mono">n²·d</span> work per layer, against recurrence's
   <span class="mono">n·d²</span>. The question is where the crossover
   sits. Below, drag <span class="mono">d</span> and run along
   <span class="mono">n</span> yourself. At the paper's
   <span class="mono">d = 512</span>, a sentence has to get very long
-  before attention's quadratic term catches up — and sentence-level
+  before attention's quadratic term catches up, and sentence-level
   <span class="mono">n</span> is usually far below that.</p>
   <figure class="stage" data-module="8" id="fig-crossover">
     <div class="fig-slot">module 8 — the complexity crossover (table 1)</div>
@@ -782,10 +783,9 @@ footer a:hover { color: var(--ink); }
 
 <section id="sec-results">
   <h2><span class="sec">§ 12</span>Cost against quality</h2>
-  <p>The results, plotted the way the argument wants them: quality against
-  training compute. The transformer sits up and to the left of everything
-  it replaced — better BLEU for one to two orders of magnitude less
-  compute. The argument makes itself.</p>
+  <p>The results, plotted as quality against training compute. The
+  transformer sits up and to the left of everything it replaced: better
+  BLEU for one to two orders of magnitude less compute.</p>
   <figure class="stage" data-module="11" id="fig-cost">
     <div class="fig-slot">module 11 — cost against quality (table 2)</div>
   </figure>
@@ -794,8 +794,9 @@ footer a:hover { color: var(--ink); }
 <section id="sec-ablations">
   <h2><span class="sec">§ 13</span>Ablations</h2>
   <p>Which parts matter? The paper varied one thing at a time. A single
-  head costs 0.9 BLEU; too many heads hurts too. Shrinking the key
-  dimension hurts. Bigger models help. Dropout matters a great deal.</p>
+  head costs 0.9 BLEU, and piling on too many heads costs something as
+  well. Shrinking the key dimension hurts. Bigger models help. Dropout
+  matters a great deal.</p>
   <figure class="stage" data-module="10" id="fig-ablations">
     <div class="fig-slot">module 10 — ablations (table 3)</div>
   </figure>
@@ -806,8 +807,8 @@ footer a:hover { color: var(--ink); }
   <p>The paper ends by looking inside. Individual heads in the trained
   model turn out to do legible work: one follows a long-distance
   dependency across eleven words; two others resolve the pronoun
-  “its” onto both “Law” and “application.” And the architecture
-  generalized on the first try — a four-layer transformer got within
+  “its” onto both “Law” and “application.” The architecture also
+  generalized on the first try: a four-layer transformer got within
   reach of the best constituency parsers of the time.</p>
   <figure class="stage" data-module="15" id="fig-learned">
     <div class="fig-slot">module 15 — what the heads learned (figures 3–5)</div>
@@ -816,15 +817,15 @@ footer a:hover { color: var(--ink); }
 
 <section id="coda">
   <p>That is the paper. One idea — every position one hop from every
-  other — and the engineering needed to make that idea trainable: the
-  scaling, the heads, the sinusoids, the mask. You have now touched each
-  piece. The title was not a boast; it was an inventory.</p>
+  other — and the engineering that makes the idea trainable: the
+  scaling, the heads, the sinusoids, the mask. You have handled each
+  piece now. The title is an inventory of them.</p>
   <p class="colophon">
   The toy model on this page is 2 encoder and 2 decoder layers,
   d<sub>model</sub> 48, 4 heads, 109,376 parameters, trained once on
   synthetic dates and shipped as 214 KB of fp16 weights. Every live
-  figure computes from those weights in plain JavaScript —
-  <a href="js/model.mjs">read the forward pass</a> and check the arithmetic
+  figure computes from those weights in plain JavaScript.
+  <a href="js/model.mjs">Read the forward pass</a> and check the arithmetic
   against the paper's section numbers.</p>
 </section>
 
