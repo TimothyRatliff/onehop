@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>onehop</title>
+  <rect width="32" height="32" rx="6" fill="#FAF8F3"/>
+  <path d="M6.5 21 Q16 -3.2 25.5 21" fill="none" stroke="#0072B2" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="6.5" cy="21" r="3.6" fill="#221E19"/>
+  <circle cx="25.5" cy="21" r="3.6" fill="#221E19"/>
+</svg>
