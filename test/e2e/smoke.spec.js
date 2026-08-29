@@ -1,6 +1,22 @@
 import { test, expect } from '@playwright/test';
 
-test('home page loads', async ({ page }) => {
+test('page loads with title and prose', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle(/.+/);
+  await expect(page).toHaveTitle(/onehop/);
+  await expect(page.locator('h1')).toHaveText('onehop');
+  await expect(page.locator('section')).toHaveCount(16); // intro + 14 sections + coda
+});
+
+test('weights load and the HUD shows the model card', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#loading')).toContainText('weights loaded', { timeout: 15000 });
+  await expect(page.locator('#loading')).toContainText('109,376 params');
+  await expect(page.locator('#hud .hud-card')).toContainText('toy model');
+});
+
+test('figure slots exist for all 15 modules', async ({ page }) => {
+  await page.goto('/');
+  for (let m = 1; m <= 15; m++) {
+    await expect(page.locator(`figure[data-module="${m}"]`)).toHaveCount(1);
+  }
 });

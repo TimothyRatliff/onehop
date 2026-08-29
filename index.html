@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>onehop — an interactive reading of Attention Is All You Need</title>
+<meta name="description" content="A self-attention layer connects any two positions in one hop. Everything else in the paper follows. An interactive explainer with a real transformer running in your browser.">
+<style>
+/* ------------------------------------------------ tokens (DESIGN.md) */
+:root {
+  --paper: #FAF8F3;
+  --ink: #221E19;
+  --azure: #0072B2;
+  --vermilion: #D55E00;
+  --moss: #009E73;
+  --plum: #CC79A7;
+  --ink-55: rgba(34, 30, 25, .55);
+  --ink-25: rgba(34, 30, 25, .25);
+  --ink-08: rgba(34, 30, 25, .08);
+  --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+@font-face {
+  font-family: 'Source Serif 4';
+  src: url(fonts/source-serif-4.woff2) format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  src: url(fonts/source-serif-4-italic.woff2) format('woff2');
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url(fonts/plex-mono-400.woff2) format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url(fonts/plex-mono-500.woff2) format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+/* ------------------------------------------------ base */
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body {
+  margin: 0;
+  font: 400 18.5px/1.65 var(--serif);
+  font-optical-sizing: auto;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* One quiet column; figures break wider; everything centered. */
+main > *, header > * { max-width: 660px; margin-left: auto; margin-right: auto; }
+main, header { padding: 0 20px; }
+figure.stage {
+  max-width: 960px;
+  margin: 40px auto 48px;
+  padding: 0;
+}
+figure.stage.wide { max-width: 1100px; }
+
+p { margin-top: 0; margin-bottom: 1.1em; }
+a { color: var(--ink); text-decoration-color: var(--ink-25); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--azure); }
+em { font-style: italic; }
+.mono { font-family: var(--mono); font-size: .85em; }
+sub { font-size: .7em; }
+
+/* ------------------------------------------------ type scale */
+header { padding-top: 72px; }
+h1 {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+.subtitle {
+  font-size: 20px;
+  font-style: italic;
+  color: var(--ink-55);
+  margin-top: 0;
+  margin-bottom: 6px;
+}
+#loading {
+  font: 400 13px/1.5 var(--mono);
+  color: var(--ink-55);
+  margin-top: 18px;
+  margin-bottom: 0;
+}
+section { margin-top: 84px; }
+section:last-of-type { margin-bottom: 120px; }
+h2 {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 .6em;
+}
+h2 .sec {
+  font: 500 14px/1 var(--mono);
+  color: var(--ink-55);
+  display: block;
+  margin-bottom: 10px;
+}
+figcaption {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink-55);
+  max-width: 660px;
+  margin: 10px auto 0;
+}
+
+/* ------------------------------------------------ badges (honesty rule) */
+.badge {
+  display: inline-block;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  border: 1px solid var(--ink-25);
+  border-radius: 3px;
+  padding: 4px 7px;
+  margin-bottom: 10px;
+}
+.badge-live { border-color: var(--azure); color: var(--azure); }
+
+/* ------------------------------------------------ figure placeholders */
+.fig-slot {
+  border: 1px dashed var(--ink-25);
+  border-radius: 4px;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 400 13px/1.5 var(--mono);
+  color: var(--ink-25);
+}
+
+/* ------------------------------------------------ controls */
+.ctl-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: 400 13px/1 var(--mono);
+  color: var(--ink-55);
+}
+.ctl-slider input[type=range] {
+  appearance: none;
+  width: 160px;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+}
+.ctl-slider input[type=range]::-webkit-slider-runnable-track {
+  height: 1px;
+  background: var(--ink-25);
+}
+.ctl-slider input[type=range]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -6.5px;
+  border-radius: 50%;
+  background: var(--azure);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--azure);
+}
+.ctl-slider input[type=range]::-moz-range-track {
+  height: 1px;
+  background: var(--ink-25);
+}
+.ctl-slider input[type=range]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--azure);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--azure);
+}
+.chip {
+  font: 500 13px/1 var(--mono);
+  color: var(--ink);
+  background: var(--ink-08);
+  border-radius: 3px;
+  padding: 4px 6px;
+  min-width: 3ch;
+  text-align: right;
+}
+:focus-visible { outline: 2px solid var(--azure); outline-offset: 2px; }
+
+/* ------------------------------------------------ the tensor HUD */
+#hud {
+  position: fixed;
+  z-index: 10;
+  font: 400 12px/1.5 var(--mono);
+  color: var(--ink-55);
+}
+#hud .hud-pipe { display: block; }
+#hud .hud-pipe text { font: 400 11px var(--mono); }
+#hud .hud-card { max-width: 176px; }
+#hud .hud-title {
+  display: block;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+#hud .hud-note { display: block; margin-top: 6px; font-size: 11px; }
+#hud .hud-value { margin-top: 8px; color: var(--ink); min-height: 1.5em; }
+#hud .hud-name { color: var(--ink-55); }
+#hud .hud-stage { display: none; }
+
+@media (min-width: 1360px) {
+  #hud {
+    top: 90px;
+    right: calc((100vw - 960px) / 2 - 196px);
+    width: 176px;
+  }
+}
+@media (max-width: 1359.98px) {
+  /* Bottom strip: one stage at a time, value line inline. */
+  #hud {
+    left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 8px 16px;
+    background: var(--paper);
+    border-top: 1px solid var(--ink-08);
+  }
+  #hud .hud-pipe { display: none !important; }
+  #hud .hud-stage { display: block; color: var(--ink); white-space: nowrap; }
+  #hud .hud-card { flex: 1; max-width: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #hud .hud-card .hud-note { display: none; }
+  #hud .hud-card br { display: none; }
+  #hud .hud-title { display: inline; margin-right: 8px; }
+  #hud .hud-value { margin-top: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #hud:empty { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>onehop</h1>
+  <p class="subtitle">an interactive reading of “Attention Is All You Need”</p>
+  <p id="loading">loading weights…</p>
+</header>
+
+<aside id="hud" aria-label="tensor shapes"></aside>
+
+<main>
+
+<section id="intro">
+  <p>In 2017, a paper from Google proposed doing away with recurrence in
+  sequence models entirely. Its argument can be put in one sentence: <em>a
+  self-attention layer connects any two positions in one hop.</em> A
+  recurrent network needs <span class="mono">n</span> steps to carry a signal
+  from the first word of a sentence to the last. A convolutional one needs a
+  stack of layers, log of <span class="mono">n</span> deep. Attention needs
+  one. The parallel training, the speed, the long-range dependencies the
+  models actually learned — all of it falls out of that single fact.</p>
+  <p>This page walks through the paper the way you'd walk through a proof.
+  Most figures here are running a real transformer — a small one, in your
+  browser, right now. You can grab almost everything you see.</p>
+</section>
+
+<section id="sec-onehop">
+  <h2><span class="sec">§ 1</span>One hop</h2>
+  <p>Start with the fact itself. Below are three ways to move information
+  from one end of a sequence to the other. The recurrent lane passes a
+  signal from each position to the next, one step at a time, and the signal
+  decays a little at every hand-off. The convolutional lane lets each
+  position see a window of <span class="mono">k</span> neighbors, so reach
+  grows by a factor of <span class="mono">k</span> per layer. The attention
+  lane connects every position to every other position directly.</p>
+  <figure class="stage wide" data-module="1" id="fig-onehop">
+    <div class="fig-slot">module 1 — one hop</div>
+  </figure>
+  <p>Set <span class="mono">n</span> to a long sentence and watch the step
+  counters. This is the whole thesis; the rest of the page is the price
+  paid for that one hop, and the evidence that the price is low.</p>
+</section>
+
+<section id="sec-bottleneck">
+  <h2><span class="sec">§ 2</span>The bottleneck</h2>
+  <p>Why not just keep recurrence? Because the hidden state at position
+  <span class="mono">t</span> depends on the one at
+  <span class="mono">t−1</span>. That dependency is a chain through the
+  whole sequence: nothing at the end can be computed before everything
+  before it. Within one training example there is no parallelism to
+  find, and at long sequence lengths, memory limits how many examples
+  you can batch together to compensate.</p>
+  <figure class="stage" data-module="7" id="fig-bottleneck">
+    <div class="fig-slot">module 7 — the bottleneck</div>
+  </figure>
+</section>
+
+<section id="sec-sdpa">
+  <h2><span class="sec">§ 3</span>Scaled dot-product attention</h2>
+  <p>So what is the one-hop mechanism, concretely? From here on, the
+  figures are live. A small transformer — the paper's architecture with
+  two layers instead of six and 48 dimensions instead of 512 — is running
+  in your browser, trained to read a date in any messy format and write it
+  back as <span class="mono">yyyy-mm-dd</span>. It is not the paper's
+  model, and this page will always tell you which numbers come from the
+  toy and which come from the paper. But every tensor you see from the toy
+  is real: computed from real weights, on your machine, as you watch.</p>
+  <p>Type a date. Pick a character. That character's query vector is dotted
+  against every position's key; the scores go through a softmax; the
+  resulting weights blend every position's value vector into one output.
+  Each stage is there to grab.</p>
+  <figure class="stage" data-module="2" id="fig-sdpa">
+    <div class="fig-slot">module 2 — scaled dot-product attention</div>
+  </figure>
+</section>
+
+<section id="sec-sqrtdk">
+  <h2><span class="sec">§ 4</span>Why √d<sub>k</sub></h2>
+  <p>The formula divides the dot products by the square root of the key
+  dimension before the softmax, and the paper spends a footnote on why. If
+  the components of a query and a key are independent with mean 0 and
+  variance 1, their dot product has variance
+  <span class="mono">d_k</span> — it grows with the dimension. Push large
+  scores through a softmax and it saturates: one weight goes to 1, the
+  rest to 0, and the gradients through the softmax go with them.</p>
+  <figure class="stage" data-module="3" id="fig-sqrtdk">
+    <div class="fig-slot">module 3 — why √d_k</div>
+  </figure>
+  <p>Raise <span class="mono">d_k</span> and watch the distribution widen
+  and the gradient gauge fall. Then turn on the scaling and watch it snap
+  back. That's the footnote, felt.</p>
+</section>
+
+<section id="sec-heads">
+  <h2><span class="sec">§ 5</span>Multi-head</h2>
+  <p>One attention pattern per layer is a bottleneck of its own — averaging
+  inhibits it. So the model runs several small attentions in parallel:
+  each head projects the input down, attends in its own subspace, and the
+  results are concatenated and mixed back together. The four heads below
+  are the toy model's real heads, and they have learned different jobs.</p>
+  <figure class="stage" data-module="6" id="fig-heads">
+    <div class="fig-slot">module 6 — multi-head attention</div>
+  </figure>
+  <p>Turn a head off. The prediction changes — or breaks. With a real
+  model, ablation is not a metaphor.</p>
+</section>
+
+<section id="sec-pe">
+  <h2><span class="sec">§ 6</span>Positional encoding</h2>
+  <p>Attention is a set operation: shuffle the inputs and the outputs
+  shuffle with them. Order has to be put in explicitly, so the model adds
+  a position signal to each embedding — sinusoids whose wavelengths run
+  from 2π up to 10000·2π, one pair of dimensions per frequency. Think of
+  a bank of clock hands spinning at geometrically spaced rates.</p>
+  <figure class="stage" data-module="4" id="fig-pe">
+    <div class="fig-slot">module 4 — positional encoding</div>
+  </figure>
+  <p>Drag the offset. Every hand advances by a fixed rotation — which is
+  the paper's reason for choosing sinusoids: the encoding of position
+  <span class="mono">pos+k</span> is a linear function of the encoding of
+  <span class="mono">pos</span>, so relative offsets are easy for the
+  model to represent.</p>
+</section>
+
+<section id="sec-stack">
+  <h2><span class="sec">§ 7</span>The stack</h2>
+  <p>Here is the whole machine. Six identical encoder layers, each
+  self-attention followed by a position-wise feed-forward network; six
+  decoder layers with a third sub-layer attending over the encoder's
+  output. Every sub-layer is wrapped in a residual connection and layer
+  normalization. The output embedding is offset by one position, for a
+  reason the next section makes vivid.</p>
+  <figure class="stage" data-module="12" id="fig-stack">
+    <div class="fig-slot">module 12 — the stack (figure 1)</div>
+  </figure>
+</section>
+
+<section id="sec-mask">
+  <h2><span class="sec">§ 8</span>The mask</h2>
+  <p>The decoder generates left to right, and during training it must not
+  see the future it is supposed to predict. The fix is blunt: before the
+  softmax, every score from a position to any later position is set to
+  −∞, which the softmax turns into exactly zero weight.</p>
+  <figure class="stage" data-module="5" id="fig-mask">
+    <div class="fig-slot">module 5 — the mask</div>
+  </figure>
+  <p>Toggle the mask off and see what the decoder does when it's allowed
+  to cheat. The failure is the explanation.</p>
+</section>
+
+<section id="sec-ffn">
+  <h2><span class="sec">§ 9</span>The feed-forward sub-layer</h2>
+  <p>Between attentions, each position is pushed through the same small
+  two-layer network: expand to 2048 dimensions, rectify, project back.
+  The same weights at every position within a layer, different weights
+  across layers — equivalently, two convolutions with kernel size 1.</p>
+  <figure class="stage" data-module="13" id="fig-ffn">
+    <div class="fig-slot">module 13 — position-wise FFN</div>
+  </figure>
+</section>
+
+<section id="sec-crossover">
+  <h2><span class="sec">§ 10</span>What the hop costs</h2>
+  <p>Nothing is free. Self-attention's one hop costs
+  <span class="mono">n²·d</span> work per layer, against recurrence's
+  <span class="mono">n·d²</span>. The question is where the crossover
+  sits. Below, move <span class="mono">n</span> and
+  <span class="mono">d</span> yourself. At the paper's
+  <span class="mono">d = 512</span>, a sentence has to get very long
+  before attention's quadratic term catches up — and sentence-level
+  <span class="mono">n</span> is usually far below that.</p>
+  <figure class="stage" data-module="8" id="fig-crossover">
+    <div class="fig-slot">module 8 — the complexity crossover (table 1)</div>
+  </figure>
+</section>
+
+<section id="sec-training">
+  <h2><span class="sec">§ 11</span>Training</h2>
+  <p>The recipe is spare: Adam with a learning rate that ramps up linearly
+  for 4000 steps and then decays as the inverse square root of the step
+  count, dropout on every sub-layer output, and label smoothing that
+  hurts perplexity but helps BLEU. The base model trained in about twelve
+  hours on eight P100s.</p>
+  <figure class="stage" data-module="9" id="fig-lrate">
+    <div class="fig-slot">module 9 — the learning-rate schedule</div>
+  </figure>
+  <figure class="stage" data-module="14" id="fig-recipe">
+    <div class="fig-slot">module 14 — the training recipe</div>
+  </figure>
+</section>
+
+<section id="sec-results">
+  <h2><span class="sec">§ 12</span>Cost against quality</h2>
+  <p>The results, plotted the way the argument wants them: quality against
+  training compute. The transformer sits up and to the left of everything
+  it replaced — better BLEU for one to two orders of magnitude less
+  compute. The argument makes itself.</p>
+  <figure class="stage" data-module="11" id="fig-cost">
+    <div class="fig-slot">module 11 — cost against quality (table 2)</div>
+  </figure>
+</section>
+
+<section id="sec-ablations">
+  <h2><span class="sec">§ 13</span>Ablations</h2>
+  <p>Which parts matter? The paper varied one thing at a time. A single
+  head costs 0.9 BLEU; too many heads hurts too. Shrinking the key
+  dimension hurts. Bigger models help. Dropout matters a great deal.</p>
+  <figure class="stage" data-module="10" id="fig-ablations">
+    <div class="fig-slot">module 10 — ablations (table 3)</div>
+  </figure>
+</section>
+
+<section id="sec-learned">
+  <h2><span class="sec">§ 14</span>What the heads learned</h2>
+  <p>The paper ends by looking inside. Individual heads in the trained
+  model turn out to do legible work: one follows a long-distance
+  dependency across eleven words; two others resolve the pronoun
+  “its” onto both “Law” and “application.” And the architecture
+  generalized on the first try — a four-layer transformer got within
+  reach of the best constituency parsers of the time.</p>
+  <figure class="stage" data-module="15" id="fig-learned">
+    <div class="fig-slot">module 15 — what the heads learned (figures 3–5)</div>
+  </figure>
+</section>
+
+<section id="coda">
+  <p>That is the paper. One idea — every position one hop from every
+  other — and the engineering needed to make that idea trainable: the
+  scaling, the heads, the sinusoids, the mask. You have now touched each
+  piece. The title was not a boast; it was an inventory.</p>
+  <p class="colophon" style="font-size:15px;color:var(--ink-55)">
+  The toy model on this page is 2 encoder and 2 decoder layers,
+  d<sub>model</sub> 48, 4 heads, 109,376 parameters, trained once on
+  synthetic dates and shipped as 214 KB of fp16 weights. Every live
+  figure computes from those weights in plain JavaScript —
+  <a href="js/model.mjs">read the forward pass</a> and check the arithmetic
+  against the paper's section numbers.</p>
+</section>
+
+</main>
+
+<script type="module" src="js/main.mjs"></script>
+</body>
+</html>

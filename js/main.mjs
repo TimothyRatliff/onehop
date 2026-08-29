@@ -1,0 +1,34 @@
+// onehop — boot.
+//
+// Loads the weights with a visible progress state, initializes the tensor
+// HUD, and hands the model to each figure module as it comes online.
+// Figures are added here one at a time as they are built.
+
+import { loadWeights } from "./runtime.mjs";
+import { hud, initHUD } from "./hud.mjs";
+
+const loadingEl = document.getElementById("loading");
+initHUD(document.getElementById("hud"));
+
+let model = null;
+try {
+  model = await loadWeights((loaded, total) => {
+    const kb = (n) => `${Math.round(n / 1024)} KB`;
+    loadingEl.textContent = total
+      ? `loading weights · ${kb(loaded)} / ${kb(total)}`
+      : `loading weights · ${kb(loaded)}`;
+  });
+  hud.setModel(model);
+  loadingEl.textContent =
+    `weights loaded · ${model.config.n_params.toLocaleString("en-US")} params · fp16 · ` +
+    `val exact match ${(model.config.val_exact_match * 100).toFixed(1)}%`;
+} catch (err) {
+  loadingEl.textContent = "weights failed to load — figures are disabled, the text still reads";
+  console.error(err);
+}
+
+// ---- figures come online here, one per module session ----
+// if (model) {
+//   const { initOneHop } = await import("./figures/onehop.mjs");
+//   initOneHop(document.getElementById("fig-onehop"), model);
+// }
