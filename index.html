@@ -548,6 +548,24 @@ figcaption {
   #hud:empty { display: none; }
 }
 
+/* ------------------------------------------------ colophon + footer */
+.colophon { font-size: 15px; color: var(--ink-55); }
+
+footer {
+  /* min() rather than padding inside a max-width box, so the text column and
+     the hairline land on the prose column's edges, not 20px inboard of them. */
+  width: min(660px, 100% - 40px);
+  margin: 0 auto;
+  padding: 28px 0 64px;
+  border-top: 1px solid var(--ink-08);
+  font: 400 13px/1.7 var(--mono);
+  color: var(--ink-55);
+}
+footer p { margin: 0; }
+footer p + p { margin-top: 6px; }
+footer a { color: var(--ink-55); }
+footer a:hover { color: var(--ink); }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
@@ -566,7 +584,8 @@ figcaption {
 <main>
 
 <section id="intro">
-  <p>In 2017, a paper from Google proposed doing away with recurrence in
+  <p>In 2017, <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">a paper from
+  Google</a> proposed doing away with recurrence in
   sequence models entirely. Its argument can be put in one sentence: <em>a
   self-attention layer connects any two positions in one hop.</em> A
   recurrent network needs <span class="mono">n</span> steps to carry a signal
@@ -785,7 +804,7 @@ figcaption {
   other — and the engineering needed to make that idea trainable: the
   scaling, the heads, the sinusoids, the mask. You have now touched each
   piece. The title was not a boast; it was an inventory.</p>
-  <p class="colophon" style="font-size:15px;color:var(--ink-55)">
+  <p class="colophon">
   The toy model on this page is 2 encoder and 2 decoder layers,
   d<sub>model</sub> 48, 4 heads, 109,376 parameters, trained once on
   synthetic dates and shipped as 214 KB of fp16 weights. Every live
@@ -795,6 +814,14 @@ figcaption {
 </section>
 
 </main>
+
+<footer>
+  <p>onehop · by <a href="https://www.timothyratliff.com" target="_blank" rel="noopener">Tim Ratliff</a>
+  · <a href="https://www.linkedin.com/in/timothy-ratliff/" target="_blank" rel="noopener">linkedin</a>
+  · <a href="https://github.com/TimothyRatliff/onehop" target="_blank" rel="noopener">source</a></p>
+  <p>Ashish Vaswani et al., <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention
+  Is All You Need</a>, NeurIPS 2017. arXiv:1706.03762</p>
+</footer>
 
 <script type="module" src="js/main.mjs"></script>
 </body>
