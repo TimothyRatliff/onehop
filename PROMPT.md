@@ -1,4 +1,4 @@
-# onehop.world — build prompt
+# onehop — build prompt
 
 Paste as `PROMPT.md` in an empty repo with the paper PDF alongside it. Phase 0 produces artifacts every later phase depends on, so don't let it be skipped.
 
@@ -6,7 +6,7 @@ Paste as `PROMPT.md` in an empty repo with the paper PDF alongside it. Phase 0 p
 
 ## THE PROMPT
 
-You are building **onehop.world**, an interactive explainer for *Attention Is All You Need* (Vaswani et al., NIPS 2017). The paper is attached and is the source of truth for every number, claim, and equation on the site.
+You are building **onehop**, an interactive explainer for *Attention Is All You Need* (Vaswani et al., NIPS 2017). The paper is attached and is the source of truth for every number, claim, and equation on the site.
 
 The site has an argument, not just a subject. **A self-attention layer connects any two positions in one hop.** Recurrence needs n hops, convolution needs log_k(n), and every other property the paper reports — the parallelism, the training speed, the long-range dependencies the heads actually learned — falls out of that one fact. The name is the thesis. Build the narrative so the reader arrives at Table 1 already convinced.
 

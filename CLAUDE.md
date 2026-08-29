@@ -1,4 +1,4 @@
-# onehop.world
+# onehop
 
 Interactive explainer for *Attention Is All You Need* (Vaswani et al., 2017). Deploys as a static site to S3 + CloudFront.
 
