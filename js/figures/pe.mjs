@@ -49,6 +49,11 @@ export function initPE(figEl) {
     because they nearly are: across all 64 positions the last one turns half
     a degree, which is what spacing the rates geometrically buys you —
     ${probeVerb()} any clock for its period and the angle it actually moves.
+    <span class="footmark" tabindex="0">Why the right-hand label is not
+    10000:</span> §3.5 calls the wavelengths a geometric progression from 2π
+    to 10000·2π, but that end is a limit the series approaches, not a term it
+    reaches — the last pair sits at 10000^((d−2)/d), which is 2π·6813 at
+    d_model 48 and 2π·9647 at the paper's 512.
     Bottom left: the same encoding as a
     matrix, one row per position. Bottom right: PE·PEᵀ, normalized —
     nearby positions stay similar along the band.</figcaption>`;
@@ -126,7 +131,12 @@ export function initPE(figEl) {
     ctx.fillStyle = C.ink55;
     ctx.font = "400 10px 'IBM Plex Mono', monospace";
     ctx.fillText("period 2π", 4, H - 2);
-    const t = "period 2π·10000";
+    // §3.5 calls the progression "from 2π to 10000·2π", but 10000 is the
+    // limit, not the last term: pair j has period 2π·10000^(2j/d), so the
+    // slowest of the 24 is 10000^(46/48) = 6813, not 10000. At the paper's
+    // d_model 512 the same expression gives 9647, close enough that the
+    // paper's phrasing reads as exact; at 48 it is 32% short.
+    const t = `period 2π·${Math.round(1 / omega(NCLK - 1))}`;
     ctx.fillText(t, W - ctx.measureText(t).width - 4, H - 2);
   }
 
