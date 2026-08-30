@@ -47,4 +47,5 @@ repo: `python3 -m venv .venv && .venv/bin/pip install torch`, then
 ## License
 
 MIT — see `LICENSE`. The bundled fonts (Source Serif 4, IBM Plex Mono) are
-SIL OFL 1.1 and the paper PDF is the authors'; both are carved out there.
+SIL OFL 1.1 and the paper PDF is the authors'; both are carved out in
+`NOTICE`, which is kept separate so GitHub can identify the MIT license.
