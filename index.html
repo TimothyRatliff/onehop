@@ -140,8 +140,12 @@ h2 .sec {
   font: 500 14px/1 var(--mono);
   color: var(--ink-55);
   display: block;
+  width: max-content;
   margin-bottom: 10px;
+  text-decoration: none;
 }
+h2 .sec:hover { color: var(--azure); }
+section[id] { scroll-margin-top: 24px; }
 figcaption {
   font-size: 15px;
   font-style: italic;
@@ -630,7 +634,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-onehop">
-  <h2><span class="sec">§ 1</span>One hop</h2>
+  <h2><a class="sec" href="#sec-onehop" aria-label="Permalink to One hop">§ 1</a>One hop</h2>
   <p>Start with the fact itself. Below are three ways to move information
   from one end of a sequence to the other. The recurrent lane passes a
   signal from each position to the next, one step at a time, and the signal
@@ -647,7 +651,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-bottleneck">
-  <h2><span class="sec">§ 2</span>The bottleneck</h2>
+  <h2><a class="sec" href="#sec-bottleneck" aria-label="Permalink to The bottleneck">§ 2</a>The bottleneck</h2>
   <p>Why not just keep recurrence? Because the hidden state at position
   <span class="mono">t</span> depends on the one at
   <span class="mono">t−1</span>. That dependency is a chain through the
@@ -662,7 +666,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-sdpa">
-  <h2><span class="sec">§ 3</span>Scaled dot-product attention</h2>
+  <h2><a class="sec" href="#sec-sdpa" aria-label="Permalink to Scaled dot-product attention">§ 3</a>Scaled dot-product attention</h2>
   <p>What does the one-hop mechanism actually do? From here on, the
   figures are live. A small transformer is running in your browser: the
   paper's architecture with two layers instead of six and 48 dimensions
@@ -682,7 +686,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-sqrtdk">
-  <h2><span class="sec">§ 4</span>Why √d<sub>k</sub></h2>
+  <h2><a class="sec" href="#sec-sqrtdk" aria-label="Permalink to Why √dk">§ 4</a>Why √d<sub>k</sub></h2>
   <p>The formula divides the dot products by the square root of the key
   dimension before the softmax, and the paper spends a footnote on why. If
   the components of a query and a key are independent with mean 0 and
@@ -699,7 +703,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-heads">
-  <h2><span class="sec">§ 5</span>Multi-head</h2>
+  <h2><a class="sec" href="#sec-heads" aria-label="Permalink to Multi-head">§ 5</a>Multi-head</h2>
   <p>One attention pattern per layer is a bottleneck of its own, since
   averaging inhibits it. So the model runs several small attentions in parallel:
   each head projects the input down, attends in its own subspace, and the
@@ -713,7 +717,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-pe">
-  <h2><span class="sec">§ 6</span>Positional encoding</h2>
+  <h2><a class="sec" href="#sec-pe" aria-label="Permalink to Positional encoding">§ 6</a>Positional encoding</h2>
   <p>Attention is a set operation: shuffle the inputs and the outputs
   shuffle with them. Order has to be put in explicitly, so the model adds
   a position signal to each embedding: sinusoids whose wavelengths run
@@ -730,7 +734,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-stack">
-  <h2><span class="sec">§ 7</span>The stack</h2>
+  <h2><a class="sec" href="#sec-stack" aria-label="Permalink to The stack">§ 7</a>The stack</h2>
   <p>Here is the whole machine. Six identical encoder layers, each
   self-attention followed by a position-wise feed-forward network; six
   decoder layers with a third sub-layer attending over the encoder's
@@ -743,7 +747,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-mask">
-  <h2><span class="sec">§ 8</span>The mask</h2>
+  <h2><a class="sec" href="#sec-mask" aria-label="Permalink to The mask">§ 8</a>The mask</h2>
   <p>The decoder generates left to right, and during training it must not
   see the future it is supposed to predict. The fix is blunt: before the
   softmax, every score from a position to any later position is set to
@@ -757,7 +761,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-ffn">
-  <h2><span class="sec">§ 9</span>The feed-forward sub-layer</h2>
+  <h2><a class="sec" href="#sec-ffn" aria-label="Permalink to The feed-forward sub-layer">§ 9</a>The feed-forward sub-layer</h2>
   <p>Between attentions, each position is pushed through the same small
   two-layer network: expand to 2048 dimensions, rectify, project back.
   The same weights at every position within a layer, different weights
@@ -768,7 +772,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-crossover">
-  <h2><span class="sec">§ 10</span>What the hop costs</h2>
+  <h2><a class="sec" href="#sec-crossover" aria-label="Permalink to What the hop costs">§ 10</a>What the hop costs</h2>
   <p>Self-attention's one hop costs
   <span class="mono">n²·d</span> work per layer, against recurrence's
   <span class="mono">n·d²</span>. The question is where the crossover
@@ -783,7 +787,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-training">
-  <h2><span class="sec">§ 11</span>Training</h2>
+  <h2><a class="sec" href="#sec-training" aria-label="Permalink to Training">§ 11</a>Training</h2>
   <p>The recipe is spare: Adam with a learning rate that ramps up linearly
   for 4000 steps and then decays as the inverse square root of the step
   count, dropout on every sub-layer output, and label smoothing that
@@ -798,7 +802,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-results">
-  <h2><span class="sec">§ 12</span>Cost against quality</h2>
+  <h2><a class="sec" href="#sec-results" aria-label="Permalink to Cost against quality">§ 12</a>Cost against quality</h2>
   <p>The results, plotted as quality against training compute. On
   English-to-German the transformer sits up and to the left of the whole
   field: the base model beats every earlier single model and every
@@ -813,7 +817,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-ablations">
-  <h2><span class="sec">§ 13</span>Ablations</h2>
+  <h2><a class="sec" href="#sec-ablations" aria-label="Permalink to Ablations">§ 13</a>Ablations</h2>
   <p>Which parts matter? The paper varied one thing at a time. A single
   head costs 0.9 BLEU, and piling on too many heads costs something as
   well. Shrinking the key dimension hurts. Bigger models help. Dropout
@@ -824,7 +828,7 @@ footer a:hover { color: var(--ink); }
 </section>
 
 <section id="sec-learned">
-  <h2><span class="sec">§ 14</span>What the heads learned</h2>
+  <h2><a class="sec" href="#sec-learned" aria-label="Permalink to What the heads learned">§ 14</a>What the heads learned</h2>
   <p>The paper ends by looking inside. Individual heads in the trained
   model turn out to do legible work: one follows a long-distance
   dependency seven positions ahead; two others resolve the pronoun
